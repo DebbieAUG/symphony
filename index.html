@@ -94,8 +94,8 @@
 
     <!-- TOKEN PREVIEW -->
     <div id="tokenPreview" class="hidden text-center space-y-3">
-      <!-- <p class="text-sm text-zinc-400">Your Token (Preview)</p>
-      <p id="tokenText" class="text-xl font-bold"></p> -->
+      <p class="text-sm text-zinc-400">Your Token (Preview)</p>
+      <p id="tokenText" class="text-xl font-bold"></p>
 
       <button onclick="submitForm()"
         class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
@@ -134,8 +134,8 @@ function toggleUPI() {
 }
 
 function generateToken() {
-  previewToken = "GYM-SYM-" + Math.floor(Math.random() * 9000 + 1000);
-//   document.getElementById("tokenText").innerText = previewToken;
+  previewToken = "GYM-SYM-CODE";
+  document.getElementById("tokenText").innerText = previewToken;
   document.getElementById("formSection").classList.add("hidden");
   document.getElementById("tokenPreview").classList.remove("hidden");
 }
