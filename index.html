@@ -210,6 +210,11 @@ async function submitForm() {
       document.getElementById("tokenPreview").classList.add("hidden");
       document.getElementById("successSection").classList.remove("hidden");
       document.getElementById("finalToken").innerText = data.token;
+      new QRCode(document.getElementById("qrCode"), {
+        text: data.token,
+        width: 180,
+        height: 180
+      });
     } else {
       alert(data.error);
       // re-enable only if backend rejected
