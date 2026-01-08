@@ -46,10 +46,62 @@
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
           onchange="toggleOtherLocation()">
           <option value="">Select</option>
-          <option>Sector 14</option>
-          <option>Sector 29</option>
-          <option>Cyber City</option>
-          <option>College Student</option>
+          <option>ABC Father's House - Ps. Raymond</option>
+          <option>All Nations House Of Prayer - Ps. AP John</option>
+          <option>ANDF - All Nations Disciple Fellowship - Ps. Neeraj Malik</option>
+          <option>B.B.C.I. - Ps. John M Philip</option>
+          <option>Believers Brethren Church - Ps. Anish</option>
+          <option>Besthda Church - Sukanta Mallick</option>
+          <option>Bethel AG Church - Pr. Sobichen Thomas</option>
+          <option>Bethel City Church - Ps. John Prakasam</option>
+          <option>Capital City Church - Ps. Ronald</option>
+          <option>Christ Commision For All Nations - Ps. Philip Rana</option>
+          <option>Christ Methodist Church, NPV</option>
+          <option>Church Of Divine Care</option>
+          <option>Church of Epiphany (Civil Line) - Rev. Prateek Pillai</option>
+          <option>CLG - Church Of Living God - Ps. Shaji Ram</option>
+          <option>Come Near To God - Ps. Anand</option>
+          <option>DBF Central Gurgaon - Ps. Manovah</option>
+          <option>DBF Gurgaon - Ps. Arvind Balaram</option>
+          <option>DBF Vatika City New Gurgaon - Bro. Victor Selvakumar</option>
+          <option>Disciple Community Friends Church - Ps. Stephen Rai</option>
+          <option>Divya Shanti AG Prayer Centre - Rev. Paul Narasimha</option>
+          <option>Ebenezer Worship Centre - Ps. B. Kunjumon</option>
+          <option>ECI Telugu Church - Rev. Samuel</option>
+          <option>Emmanuel Baptist - Ps. Bijoy</option>
+          <option>Global Christian Life Centre - Rev. Youtha / Rev. Robert</option>
+          <option>God's Creation - Ps. Ravinder</option>
+          <option>Gurgaon Bible Church</option>
+          <option>Gurgaon Christian Fellowship - Ps. David Dayalan</option>
+          <option>Haryana Berean Fellowship - Ps. Balinder Mehra</option>
+          <option>House Of Hope - Ps. Jijo Varghese</option>
+          <option>Indian Church Of Christ</option>
+          <option>Indian Pentecostal Assembly - Ps. Blesson</option>
+          <option>IPC Good Shepherd - Ps. David Samuel</option>
+          <option>Ivan - Ivan Oscar Adan Fernandez</option>
+          <option>Jeevan Jyoti - Ps. Samuel Cyrus / Rev. Bharat</option>
+          <option>Life Hinglish Church - Ps. Gladwin</option>
+          <option>Mahaneh Dan Fellowship - Ps. Anil Baby</option>
+          <option>Maranatha House Fellowship - Ps. Vikas Balguher</option>
+          <option>Masih Prarthana Bhawan</option>
+          <option>Menorah Christian Fellowship - Ps. Prakash PS</option>
+          <option>New Hope Fellowship</option>
+          <option>New Life Church - Ps. Victor Nazareth</option>
+          <option>New Life Revival Centre - Ps. J.B. Suna</option>
+          <option>New Testament Church - Ps. Iqbal Masih</option>
+          <option>Penial House of Fellowship - Ps. Ankush</option>
+          <option>Precept Ministries, House Of Prayers</option>
+          <option>Recreate Prayer House - Ps. Mukesh Kumar</option>
+          <option>Shalom New Fellowship - Ps. Joy ER</option>
+          <option>Shalom New Fellowship Dhankot - Ps. Kishan</option>
+          <option>The Masters Place</option>
+          <option>UHOP AG Church - Ps. Sam Sundar</option>
+          <option>Victory Church - Ps. Britto</option>
+          <option>Yeshu Naam Satsang - Ps. Sonu</option>
+          <option>Yeshu Prem Mandir</option>
+          <option>Yeshu Satsang - Ps. Vipin Mathew</option>
+          <option>Zion Global Worship Centre - Ps. Moncy</option>
+
           <option>Other</option>
         </select>
       </div>
@@ -120,6 +172,7 @@
       <p class="text-xs text-zinc-400">
         Screenshot your token & QR for entry
       </p>
+      <p class="text-blue-400 font-semibold">For Updates, Follow Us on Instagram <a href="https://www.instagram.com/gurgaonyuvamovement" target="_blank">@gurgaonyuvamovement/a></p>
     </div>
 
   </div>
@@ -184,9 +237,9 @@ function generateToken() {
 async function submitForm() {
   const submitBtn = document.getElementById("submitBtn");
 
-  // 🔒 IMMEDIATELY disable button
+  // Disable immediately
   submitBtn.disabled = true;
-  submitBtn.innerText = "Submitting...";
+  submitBtn.innerText = "Confirming...";
   submitBtn.classList.add("opacity-50", "cursor-not-allowed");
 
   const payload = {
@@ -210,28 +263,35 @@ async function submitForm() {
       document.getElementById("tokenPreview").classList.add("hidden");
       document.getElementById("successSection").classList.remove("hidden");
       document.getElementById("finalToken").innerText = data.token;
-      new QRCode(document.getElementById("qrCode"), {
+
+      // Clear any old QR
+      const qrContainer = document.getElementById("qrCode");
+      qrContainer.innerHTML = "";
+
+      // Generate QR
+      new QRCode(qrContainer, {
         text: data.token,
         width: 180,
         height: 180
       });
+
     } else {
       alert(data.error);
-      // re-enable only if backend rejected
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Submit Registration";
-      submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      restoreSubmitButton(submitBtn);
     }
 
   } catch (err) {
     alert("Network error. Please try again.");
-
-    // re-enable only on failure
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Registration";
-    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    restoreSubmitButton(submitBtn);
   }
 }
+
+function restoreSubmitButton(btn) {
+  btn.disabled = false;
+  btn.innerText = "Confirm Registration";
+  btn.classList.remove("opacity-50", "cursor-not-allowed");
+}
+
 
 </script>
 
