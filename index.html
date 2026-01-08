@@ -24,7 +24,7 @@
     <!-- FORM -->
     <div id="formSection" class="space-y-4">
 
-      <input id="name" type="text" placeholder="Jesus called you by name...Tell Use"
+      <input id="name" type="text" placeholder="Jesus called you by name...Tell Us"
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
       <div>
@@ -63,14 +63,14 @@
         <!-- PAYMENT QR IMAGE -->
         <div class="text-center space-y-2">
             <p class="text-sm text-zinc-400">
-                Scan to pay or <a href="https://upi.pay/QR?pa=deborahtjoy@oksbi&pn=Deborah%20Dsouza&am=50&cu=INR" target="_blank" class="text-indigo-500 underline"> Click Here</a>
+                Scan to pay
             </p>
             <img
                 src="payment-qr.png"
                 alt="UPI QR"
                 class="mx-auto w-40 rounded-lg border border-zinc-700"
             />
-            <p class="text-xs text-zinc-500 text-center"> UPI: deborah@upi </p>
+            <p class="text-xs text-zinc-500 text-center"> UPI: doratharajoy@okhdfcbank </p>
         </div>
 
         <select id="paymentDone"
@@ -94,8 +94,8 @@
 
     <!-- TOKEN PREVIEW -->
     <div id="tokenPreview" class="hidden text-center space-y-3">
-      <p class="text-sm text-zinc-400">Your Token (Preview)</p>
-      <p id="tokenText" class="text-xl font-bold"></p>
+      <!-- <p class="text-sm text-zinc-400">Your Token (Preview)</p>
+      <p id="tokenText" class="text-xl font-bold"></p> -->
 
       <button onclick="submitForm()"
         class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
@@ -129,7 +129,7 @@ function toggleOtherLocation() {
 function toggleUPI() {
   document.getElementById("upiRefId").classList.toggle(
     "hidden",
-    document.getElementById("paymentDone").value !== "Yes"
+    document.getElementById("paymentDone").value !== "Yes, Paid!👍"
   );
 }
 
