@@ -149,20 +149,20 @@ function toggleUPI() {
 }
 
 function generateToken() {
-  if (
-    !document.getElementById("fullName").value ||
-    !document.getElementById("ageGroup").value ||
-    !document.getElementById("churchName").value ||
-    !document.getElementById("pastorName").value ||
-    !document.getElementById("paymentDone").value ||
-    (
-      document.getElementById("paymentDone").value === "YES" &&
-      !document.getElementById("upiRefId").value
-    )
-  ) {
-    alert("Please fill all required fields.");
-    return;
-  }
+  // if (
+  //   !document.getElementById("fullName").value ||
+  //   !document.getElementById("ageGroup").value ||
+  //   !document.getElementById("churchName").value ||
+  //   !document.getElementById("pastorName").value ||
+  //   !document.getElementById("paymentDone").value ||
+  //   (
+  //     document.getElementById("paymentDone").value === "YES" &&
+  //     !document.getElementById("upiRefId").value
+  //   )
+  // ) {
+  //   alert("Please fill all required fields.");
+  //   return;
+  // }
 
   previewToken = "GYM-SYM-CODE";
   document.getElementById("tokenText").innerText = previewToken;
