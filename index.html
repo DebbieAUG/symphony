@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Symphony Concert Registration</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+
+<body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md bg-zinc-900 rounded-xl p-6 space-y-5">
+
+    <h1 class="text-2xl font-bold text-center">🎶 Symphony</h1>
+    <p class="text-center text-zinc-400 text-sm">
+      Gurgaon Youth Concert Registration
+    </p>
+
+    <!-- FORM -->
+    <div id="formSection" class="space-y-4">
+
+      <input id="name" type="text" placeholder="Your Name"
+        class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
+
+      <div>
+        <p class="mb-1 text-sm">Age Group</p>
+        <select id="ageGroup"
+          class="w-full p-3 rounded bg-zinc-800 border border-zinc-700">
+          <option value="">Select</option>
+          <option>15-20</option>
+          <option>21-25</option>
+          <option>26-30</option>
+          <option>30+</option>
+        </select>
+      </div>
+
+      <div>
+        <p class="mb-1 text-sm">Location</p>
+        <select id="location"
+          class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
+          onchange="toggleOtherLocation()">
+          <option value="">Select</option>
+          <option>Sector 14</option>
+          <option>Sector 29</option>
+          <option>Cyber City</option>
+          <option>College Student</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <input id="otherLocation" type="text"
+        placeholder="Specify location"
+        class="hidden w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
+
+      <div>
+        <p class="mb-1 text-sm">Payment Done?</p>
+        <select id="paymentDone"
+          class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
+          onchange="toggleUPI()">
+          <option value="">Select</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+
+      <input id="upiRefId" type="text"
+        placeholder="UPI Reference ID"
+        class="hidden w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
+
+      <button onclick="generateToken()"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded font-semibold">
+        Generate Token
+      </button>
+    </div>
+
+    <!-- TOKEN PREVIEW -->
+    <div id="tokenPreview" class="hidden text-center space-y-3">
+      <p class="text-sm text-zinc-400">Your Token (Preview)</p>
+      <p id="tokenText" class="text-xl font-bold"></p>
+
+      <button onclick="submitForm()"
+        class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
+        Submit Registration
+      </button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="successSection" class="hidden text-center space-y-3">
+      <p class="text-green-400 font-semibold">Registration Confirmed</p>
+      <p id="finalToken" class="text-xl font-bold"></p>
+      <div id="qrCode" class="flex justify-center"></div>
+      <p class="text-xs text-zinc-400">
+        Screenshot your token & QR for entry
+      </p>
+    </div>
+
+  </div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+let previewToken = "";
+
+function toggleOtherLocation() {
+  document.getElementById("otherLocation").classList.toggle(
+    "hidden",
+    document.getElementById("location").value !== "Other"
+  );
+}
+
+function toggleUPI() {
+  document.getElementById("upiRefId").classList.toggle(
+    "hidden",
+    document.getElementById("paymentDone").value !== "Yes"
+  );
+}
+
+function generateToken() {
+  previewToken = "GYM-SYM-" + Math.floor(Math.random() * 9000 + 1000);
+  document.getElementById("tokenText").innerText = previewToken;
+  document.getElementById("formSection").classList.add("hidden");
+  document.getElementById("tokenPreview").classList.remove("hidden");
+}
+
+async function submitForm() {
+  const payload = {
+    name: document.getElementById("name").value,
+    ageGroup: document.getElementById("ageGroup").value,
+    location: document.getElementById("location").value,
+    otherLocation: document.getElementById("otherLocation").value,
+    paymentDone: document.getElementById("paymentDone").value,
+    upiRefId: document.getElementById("upiRefId").value
+  };
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("tokenPreview").classList.add("hidden");
+    document.getElementById("successSection").classList.remove("hidden");
+    document.getElementById("finalToken").innerText = data.token;
+
+    new QRCode(document.getElementById("qrCode"), {
+      text: data.token,
+      width: 180,
+      height: 180
+    });
+  } else {
+    alert(data.error);
+  }
+}
+</script>
+
+</body>
+</html>
