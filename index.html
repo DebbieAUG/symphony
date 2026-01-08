@@ -42,69 +42,99 @@
 
       <div>
         <p class="mb-1 text-sm">Your Spiritual Family!🫂</p>
-        <select id="location"
-          class = "text-sm leading-tight""
-          class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
-          
-          onchange="toggleOtherLocation()">
-          <option value="">Select</option>
-          <option class = "text-sm leading-tight"">ABC Father's House - Ps. Raymond</option>
-          <option class = "text-sm leading-tight"">All Nations House Of Prayer - Ps. AP John</option>
-          <option class = "text-sm leading-tight"">ANDF - All Nations Disciple Fellowship - Ps. Neeraj Malik</option>
-          <option class = "text-sm leading-tight"">B.B.C.I. - Ps. John M Philip</option>
-          <option class = "text-sm leading-tight"">Believers Brethren Church - Ps. Anish</option>
-          <option class = "text-sm leading-tight"">Besthda Church - Sukanta Mallick</option>
-          <option class = "text-sm leading-tight"">Bethel AG Church - Pr. Sobichen Thomas</option>
-          <option class = "text-sm leading-tight"">Bethel City Church - Ps. John Prakasam</option>
-          <option class = "text-sm leading-tight"">Capital City Church - Ps. Ronald</option>
-          <option class = "text-sm leading-tight"">Christ Commision For All Nations - Ps. Philip Rana</option>
-          <option class = "text-sm leading-tight"">Christ Methodist Church, NPV</option>
-          <option class = "text-sm leading-tight"">Church Of Divine Care</option>
-          <option class = "text-sm leading-tight"">Church of Epiphany (Civil Line) - Rev. Prateek Pillai</option>
-          <option class = "text-sm leading-tight"">CLG - Church Of Living God - Ps. Shaji Ram</option>
-          <option class = "text-sm leading-tight"">Come Near To God - Ps. Anand</option>
-          <option class = "text-sm leading-tight"">DBF Central Gurgaon - Ps. Manovah</option>
-          <option class = "text-sm leading-tight"">DBF Gurgaon - Ps. Arvind Balaram</option>
-          <option class = "text-sm leading-tight"">DBF Vatika City New Gurgaon - Bro. Victor Selvakumar</option>
-          <option class = "text-sm leading-tight"">Disciple Community Friends Church - Ps. Stephen Rai</option>
-          <option class = "text-sm leading-tight"">Divya Shanti AG Prayer Centre - Rev. Paul Narasimha</option>
-          <option class = "text-sm leading-tight"">Ebenezer Worship Centre - Ps. B. Kunjumon</option>
-          <option class = "text-sm leading-tight"">ECI Telugu Church - Rev. Samuel</option>
-          <option class = "text-sm leading-tight"">Emmanuel Baptist - Ps. Bijoy</option>
-          <option class = "text-sm leading-tight"">Global Christian Life Centre - Rev. Youtha / Rev. Robert</option>
-          <option class = "text-sm leading-tight"">God's Creation - Ps. Ravinder</option>
-          <option class = "text-sm leading-tight"">Gurgaon Bible Church</option>
-          <option class = "text-sm leading-tight"">Gurgaon Christian Fellowship - Ps. David Dayalan</option>
-          <option class = "text-sm leading-tight"">Haryana Berean Fellowship - Ps. Balinder Mehra</option>
-          <option class = "text-sm leading-tight"">House Of Hope - Ps. Jijo Varghese</option>
-          <option class = "text-sm leading-tight"">Indian Church Of Christ</option>
-          <option class = "text-sm leading-tight"">Indian Pentecostal Assembly - Ps. Blesson</option>
-          <option class = "text-sm leading-tight"">IPC Good Shepherd - Ps. David Samuel</option>
-          <option class = "text-sm leading-tight"">Ivan - Ivan Oscar Adan Fernandez</option>
-          <option class = "text-sm leading-tight"">Jeevan Jyoti - Ps. Samuel Cyrus / Rev. Bharat</option>
-          <option class = "text-sm leading-tight"">Life Hinglish Church - Ps. Gladwin</option>
-          <option class = "text-sm leading-tight"">Mahaneh Dan Fellowship - Ps. Anil Baby</option>
-          <option class = "text-sm leading-tight"">Maranatha House Fellowship - Ps. Vikas Balguher</option>
-          <option class = "text-sm leading-tight"">Masih Prarthana Bhawan</option>
-          <option class = "text-sm leading-tight"">Menorah Christian Fellowship - Ps. Prakash PS</option>
-          <option class = "text-sm leading-tight"">New Hope Fellowship</option>
-          <option class = "text-sm leading-tight"">New Life Church - Ps. Victor Nazareth</option>
-          <option class = "text-sm leading-tight"">New Life Revival Centre - Ps. J.B. Suna</option>
-          <option class = "text-sm leading-tight"">New Testament Church - Ps. Iqbal Masih</option>
-          <option class = "text-sm leading-tight"">Penial House of Fellowship - Ps. Ankush</option>
-          <option class = "text-sm leading-tight"">Precept Ministries, House Of Prayers</option>
-          <option class = "text-sm leading-tight"">Recreate Prayer House - Ps. Mukesh Kumar</option>
-          <option class = "text-sm leading-tight"">Shalom New Fellowship - Ps. Joy ER</option>
-          <option class = "text-sm leading-tight"">Shalom New Fellowship Dhankot - Ps. Kishan</option>
-          <option class = "text-sm leading-tight"">The Masters Place</option>
-          <option class = "text-sm leading-tight"">UHOP AG Church - Ps. Sam Sundar</option>
-          <option class = "text-sm leading-tight"">Victory Church - Ps. Britto</option>
-          <option class = "text-sm leading-tight"">Yeshu Naam Satsang - Ps. Sonu</option>
-          <option class = "text-sm leading-tight"">Yeshu Prem Mandir</option>
-          <option class = "text-sm leading-tight"">Yeshu Satsang - Ps. Vipin Mathew</option>
-          <option class = "text-sm leading-tight"">Zion Global Worship Centre - Ps. Moncy</option>
-          <option class = "text-sm leading-tight"">Other</option>
-        </select>
+        <!-- LOCATION DROPDOWN -->
+        <div class="relative">
+          <p class="mb-1 text-sm text-zinc-400">Location / Church</p>
+
+          <button
+            type="button"
+            id="locationButton"
+            onclick="toggleLocationDropdown()"
+            class="w-full px-3 py-2 rounded bg-zinc-800 border border-zinc-700 text-sm text-left flex justify-between items-center"
+          >
+            <span id="locationSelected" class="text-zinc-400">
+              Select
+            </span>
+            <span class="text-zinc-500">▾</span>
+          </button>
+
+          <ul
+            id="locationDropdown"
+            class="hidden absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-zinc-900 border border-zinc-700 rounded text-xs"
+          >
+
+            <!-- OPTIONS -->
+            <li onclick="selectLocation(`ABC Father's House - Ps. Raymond`)" class="dropdown-item">ABC Father's House - Ps. Raymond</li>
+            <li onclick="selectLocation(`All Nations House Of Prayer - Ps. AP John`)" class="dropdown-item">All Nations House Of Prayer - Ps. AP John</li>
+            <li onclick="selectLocation(`ANDF - All Nations Disciple Fellowship - Ps. Neeraj Malik`)" class="dropdown-item">ANDF - All Nations Disciple Fellowship - Ps. Neeraj Malik</li>
+            <li onclick="selectLocation(`B.B.C.I. - Ps. John M Philip`)" class="dropdown-item">B.B.C.I. - Ps. John M Philip</li>
+            <li onclick="selectLocation(`Believers Brethren Church - Ps. Anish`)" class="dropdown-item">Believers Brethren Church - Ps. Anish</li>
+            <li onclick="selectLocation(`Besthda Church - Sukanta Mallick`)" class="dropdown-item">Besthda Church - Sukanta Mallick</li>
+            <li onclick="selectLocation(`Bethel AG Church - Pr. Sobichen Thomas`)" class="dropdown-item">Bethel AG Church - Pr. Sobichen Thomas</li>
+            <li onclick="selectLocation(`Bethel City Church - Ps. John Prakasam`)" class="dropdown-item">Bethel City Church - Ps. John Prakasam</li>
+            <li onclick="selectLocation(`Capital City Church - Ps. Ronald`)" class="dropdown-item">Capital City Church - Ps. Ronald</li>
+            <li onclick="selectLocation(`Christ Commision For All Nations - Ps. Philip Rana`)" class="dropdown-item">Christ Commision For All Nations - Ps. Philip Rana</li>
+            <li onclick="selectLocation(`Christ Methodist Church, NPV`)" class="dropdown-item">Christ Methodist Church, NPV</li>
+            <li onclick="selectLocation(`Church Of Divine Care`)" class="dropdown-item">Church Of Divine Care</li>
+            <li onclick="selectLocation(`Church of Epiphany (Civil Line) - Rev. Prateek Pillai`)" class="dropdown-item">Church of Epiphany (Civil Line) - Rev. Prateek Pillai</li>
+            <li onclick="selectLocation(`CLG - Church Of Living God - Ps. Shaji Ram`)" class="dropdown-item">CLG - Church Of Living God - Ps. Shaji Ram</li>
+            <li onclick="selectLocation(`Come Near To God - Ps. Anand`)" class="dropdown-item">Come Near To God - Ps. Anand</li>
+            <li onclick="selectLocation(`DBF Central Gurgaon - Ps. Manovah`)" class="dropdown-item">DBF Central Gurgaon - Ps. Manovah</li>
+            <li onclick="selectLocation(`DBF Gurgaon - Ps. Arvind Balaram`)" class="dropdown-item">DBF Gurgaon - Ps. Arvind Balaram</li>
+            <li onclick="selectLocation(`DBF Vatika City New Gurgaon - Bro. Victor Selvakumar`)" class="dropdown-item">DBF Vatika City New Gurgaon - Bro. Victor Selvakumar</li>
+            <li onclick="selectLocation(`Disciple Community Friends Church - Ps. Stephen Rai`)" class="dropdown-item">Disciple Community Friends Church - Ps. Stephen Rai</li>
+            <li onclick="selectLocation(`Divya Shanti AG Prayer Centre - Rev. Paul Narasimha`)" class="dropdown-item">Divya Shanti AG Prayer Centre - Rev. Paul Narasimha</li>
+            <li onclick="selectLocation(`Ebenezer Worship Centre - Ps. B. Kunjumon`)" class="dropdown-item">Ebenezer Worship Centre - Ps. B. Kunjumon</li>
+            <li onclick="selectLocation(`ECI Telugu Church - Rev. Samuel`)" class="dropdown-item">ECI Telugu Church - Rev. Samuel</li>
+            <li onclick="selectLocation(`Emmanuel Baptist - Ps. Bijoy`)" class="dropdown-item">Emmanuel Baptist - Ps. Bijoy</li>
+            <li onclick="selectLocation(`Global Christian Life Centre - Rev. Youtha / Rev. Robert`)" class="dropdown-item">Global Christian Life Centre - Rev. Youtha / Rev. Robert</li>
+            <li onclick="selectLocation(`God's Creation - Ps. Ravinder`)" class="dropdown-item">God's Creation - Ps. Ravinder</li>
+            <li onclick="selectLocation(`Gurgaon Bible Church`)" class="dropdown-item">Gurgaon Bible Church</li>
+            <li onclick="selectLocation(`Gurgaon Christian Fellowship - Ps. David Dayalan`)" class="dropdown-item">Gurgaon Christian Fellowship - Ps. David Dayalan</li>
+            <li onclick="selectLocation(`Haryana Berean Fellowship - Ps. Balinder Mehra`)" class="dropdown-item">Haryana Berean Fellowship - Ps. Balinder Mehra</li>
+            <li onclick="selectLocation(`House Of Hope - Ps. Jijo Varghese`)" class="dropdown-item">House Of Hope - Ps. Jijo Varghese</li>
+            <li onclick="selectLocation(`Indian Church Of Christ`)" class="dropdown-item">Indian Church Of Christ</li>
+            <li onclick="selectLocation(`Indian Pentecostal Assembly - Ps. Blesson`)" class="dropdown-item">Indian Pentecostal Assembly - Ps. Blesson</li>
+            <li onclick="selectLocation(`IPC Good Shepherd - Ps. David Samuel`)" class="dropdown-item">IPC Good Shepherd - Ps. David Samuel</li>
+            <li onclick="selectLocation(`Ivan - Ivan Oscar Adan Fernandez`)" class="dropdown-item">Ivan - Ivan Oscar Adan Fernandez</li>
+            <li onclick="selectLocation(`Jeevan Jyoti - Ps. Samuel Cyrus / Rev. Bharat`)" class="dropdown-item">Jeevan Jyoti - Ps. Samuel Cyrus / Rev. Bharat</li>
+            <li onclick="selectLocation(`Life Hinglish Church - Ps. Gladwin`)" class="dropdown-item">Life Hinglish Church - Ps. Gladwin</li>
+            <li onclick="selectLocation(`Mahaneh Dan Fellowship - Ps. Anil Baby`)" class="dropdown-item">Mahaneh Dan Fellowship - Ps. Anil Baby</li>
+            <li onclick="selectLocation(`Maranatha House Fellowship - Ps. Vikas Balguher`)" class="dropdown-item">Maranatha House Fellowship - Ps. Vikas Balguher</li>
+            <li onclick="selectLocation(`Masih Prarthana Bhawan`)" class="dropdown-item">Masih Prarthana Bhawan</li>
+            <li onclick="selectLocation(`Menorah Christian Fellowship - Ps. Prakash PS`)" class="dropdown-item">Menorah Christian Fellowship - Ps. Prakash PS</li>
+            <li onclick="selectLocation(`New Hope Fellowship`)" class="dropdown-item">New Hope Fellowship</li>
+            <li onclick="selectLocation(`New Life Church - Ps. Victor Nazareth`)" class="dropdown-item">New Life Church - Ps. Victor Nazareth</li>
+            <li onclick="selectLocation(`New Life Revival Centre - Ps. J.B. Suna`)" class="dropdown-item">New Life Revival Centre - Ps. J.B. Suna</li>
+            <li onclick="selectLocation(`New Testament Church - Ps. Iqbal Masih`)" class="dropdown-item">New Testament Church - Ps. Iqbal Masih</li>
+            <li onclick="selectLocation(`Penial House of Fellowship - Ps. Ankush`)" class="dropdown-item">Penial House of Fellowship - Ps. Ankush</li>
+            <li onclick="selectLocation(`Precept Ministries, House Of Prayers`)" class="dropdown-item">Precept Ministries, House Of Prayers</li>
+            <li onclick="selectLocation(`Recreate Prayer House - Ps. Mukesh Kumar`)" class="dropdown-item">Recreate Prayer House - Ps. Mukesh Kumar</li>
+            <li onclick="selectLocation(`Shalom New Fellowship - Ps. Joy ER`)" class="dropdown-item">Shalom New Fellowship - Ps. Joy ER</li>
+            <li onclick="selectLocation(`Shalom New Fellowship Dhankot - Ps. Kishan`)" class="dropdown-item">Shalom New Fellowship Dhankot - Ps. Kishan</li>
+            <li onclick="selectLocation(`The Masters Place`)" class="dropdown-item">The Masters Place</li>
+            <li onclick="selectLocation(`UHOP AG Church - Ps. Sam Sundar`)" class="dropdown-item">UHOP AG Church - Ps. Sam Sundar</li>
+            <li onclick="selectLocation(`Victory Church - Ps. Britto`)" class="dropdown-item">Victory Church - Ps. Britto</li>
+            <li onclick="selectLocation(`Yeshu Naam Satsang - Ps. Sonu`)" class="dropdown-item">Yeshu Naam Satsang - Ps. Sonu</li>
+            <li onclick="selectLocation(`Yeshu Prem Mandir`)" class="dropdown-item">Yeshu Prem Mandir</li>
+            <li onclick="selectLocation(`Yeshu Satsang - Ps. Vipin Mathew`)" class="dropdown-item">Yeshu Satsang - Ps. Vipin Mathew</li>
+            <li onclick="selectLocation(`Zion Global Worship Centre - Ps. Moncy`)" class="dropdown-item">Zion Global Worship Centre - Ps. Moncy</li>
+
+            <li onclick="selectLocation('Other')" class="dropdown-item font-semibold">Other</li>
+          </ul>
+        </div>
+
+        <!-- Hidden input for validation & submit -->
+        <input type="hidden" id="location" />
+        <style>
+          .dropdown-item {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+          }
+          .dropdown-item:hover {
+            background-color: #27272a;
+          }
+        </style>
       </div>
 
       <input id="otherLocation" type="text"
@@ -227,37 +257,36 @@ function generateToken() {
   document.getElementById("tokenPreview").classList.remove("hidden");
 }
 
-// async function submitForm() {
-//   const payload = {
-//     name: document.getElementById("name").value,
-//     ageGroup: document.getElementById("ageGroup").value,
-//     location: document.getElementById("location").value,
-//     otherLocation: document.getElementById("otherLocation").value,
-//     paymentDone: document.getElementById("paymentDone").value,
-//     upiRefId: document.getElementById("upiRefId").value
-//   };
+function toggleLocationDropdown() {
+  document.getElementById("locationDropdown").classList.toggle("hidden");
+}
 
-//   const res = await fetch(API_URL, {
-//     method: "POST",
-//     body: JSON.stringify(payload)
-//   });
+function selectLocation(value) {
+  document.getElementById("location").value = value;
+  const label = document.getElementById("locationSelected");
+  label.innerText = value;
+  label.classList.remove("text-zinc-400");
+  label.classList.add("text-white");
 
-//   const data = await res.json();
+  document.getElementById("locationDropdown").classList.add("hidden");
 
-//   if (data.success) {
-//     document.getElementById("tokenPreview").classList.add("hidden");
-//     document.getElementById("successSection").classList.remove("hidden");
-//     document.getElementById("finalToken").innerText = data.token;
+  const otherField = document.getElementById("otherLocation");
+  if (value === "Other") {
+    otherField.classList.remove("hidden");
+  } else {
+    otherField.classList.add("hidden");
+    otherField.value = "";
+  }
+}
 
-//     new QRCode(document.getElementById("qrCode"), {
-//       text: data.token,
-//       width: 180,
-//       height: 180
-//     });
-//   } else {
-//     alert(data.error);
-//   }
-// }
+// Close when clicking outside
+document.addEventListener("click", function (e) {
+  const btn = document.getElementById("locationButton");
+  const list = document.getElementById("locationDropdown");
+  if (!btn.contains(e.target) && !list.contains(e.target)) {
+    list.classList.add("hidden");
+  }
+});
 
 async function submitForm() {
   const submitBtn = document.getElementById("submitBtn");
