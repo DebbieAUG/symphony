@@ -101,13 +101,14 @@
         class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
         Confirm Registration
       </button> -->
+
       <button
         id="submitBtn"
         onclick="submitForm()"
-        disabled
-        class="w-full bg-green-600 p-3 rounded font-semibold opacity-50 cursor-not-allowed">
+        class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
         Confirm Registration
       </button>
+
 
     </div>
 
@@ -126,7 +127,6 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 let previewToken = "";
-let isSubmitting = false;
 
 function toggleOtherLocation() {
   document.getElementById("otherLocation").classList.toggle(
@@ -142,37 +142,11 @@ function toggleUPI() {
   );
 }
 
-// function generateToken() {
-//   previewToken = "GYM-SYM-CODE";
-//   document.getElementById("tokenText").innerText = previewToken;
-//   document.getElementById("formSection").classList.add("hidden");
-//   document.getElementById("tokenPreview").classList.remove("hidden");
-// }
-
 function generateToken() {
-  if (!allFieldsValid()) {
-    alert("Please fill all required fields before generating token.");
-    return;
-  }
-
-  // Hard-disable submit initially
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
-  submitBtn.classList.add("opacity-50", "cursor-not-allowed");
-
-  // Generate preview token
   previewToken = "GYM-SYM-CODE";
   document.getElementById("tokenText").innerText = previewToken;
-
-  // Switch UI
   document.getElementById("formSection").classList.add("hidden");
   document.getElementById("tokenPreview").classList.remove("hidden");
-
-  // Enable submit AFTER UI settles
-  setTimeout(() => {
-    submitBtn.disabled = false;
-    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
-  }, 300); // 300ms buffer = safe
 }
 
 // async function submitForm() {
@@ -208,10 +182,9 @@ function generateToken() {
 // }
 
 async function submitForm() {
-  if (isSubmitting) return; // HARD STOP duplicate submits
-  isSubmitting = true;
-
   const submitBtn = document.getElementById("submitBtn");
+
+  // 🔒 IMMEDIATELY disable button
   submitBtn.disabled = true;
   submitBtn.innerText = "Submitting...";
   submitBtn.classList.add("opacity-50", "cursor-not-allowed");
@@ -239,12 +212,19 @@ async function submitForm() {
       document.getElementById("finalToken").innerText = data.token;
     } else {
       alert(data.error);
-      isSubmitting = false; // allow retry on error
+      // re-enable only if backend rejected
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Submit Registration";
+      submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
     }
 
   } catch (err) {
     alert("Network error. Please try again.");
-    isSubmitting = false;
+
+    // re-enable only on failure
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Registration";
+    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
   }
 }
 
