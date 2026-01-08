@@ -97,10 +97,18 @@
       <p class="text-sm text-zinc-400">Your Token (Preview)</p>
       <p id="tokenText" class="text-xl font-bold"></p>
 
-      <button onclick="submitForm()"
+      <!-- <button onclick="submitForm()"
         class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
         Confirm Registration
+      </button> -->
+      <button
+        id="submitBtn"
+        onclick="submitForm()"
+        disabled
+        class="w-full bg-green-600 p-3 rounded font-semibold opacity-50 cursor-not-allowed">
+        Confirm Registration
       </button>
+
     </div>
 
     <!-- SUCCESS -->
@@ -118,6 +126,7 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 let previewToken = "";
+let isSubmitting = false;
 
 function toggleOtherLocation() {
   document.getElementById("otherLocation").classList.toggle(
@@ -133,14 +142,80 @@ function toggleUPI() {
   );
 }
 
+// function generateToken() {
+//   previewToken = "GYM-SYM-CODE";
+//   document.getElementById("tokenText").innerText = previewToken;
+//   document.getElementById("formSection").classList.add("hidden");
+//   document.getElementById("tokenPreview").classList.remove("hidden");
+// }
+
 function generateToken() {
+  if (!allFieldsValid()) {
+    alert("Please fill all required fields before generating token.");
+    return;
+  }
+
+  // Hard-disable submit initially
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+  // Generate preview token
   previewToken = "GYM-SYM-CODE";
   document.getElementById("tokenText").innerText = previewToken;
+
+  // Switch UI
   document.getElementById("formSection").classList.add("hidden");
   document.getElementById("tokenPreview").classList.remove("hidden");
+
+  // Enable submit AFTER UI settles
+  setTimeout(() => {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+  }, 300); // 300ms buffer = safe
 }
 
+// async function submitForm() {
+//   const payload = {
+//     name: document.getElementById("name").value,
+//     ageGroup: document.getElementById("ageGroup").value,
+//     location: document.getElementById("location").value,
+//     otherLocation: document.getElementById("otherLocation").value,
+//     paymentDone: document.getElementById("paymentDone").value,
+//     upiRefId: document.getElementById("upiRefId").value
+//   };
+
+//   const res = await fetch(API_URL, {
+//     method: "POST",
+//     body: JSON.stringify(payload)
+//   });
+
+//   const data = await res.json();
+
+//   if (data.success) {
+//     document.getElementById("tokenPreview").classList.add("hidden");
+//     document.getElementById("successSection").classList.remove("hidden");
+//     document.getElementById("finalToken").innerText = data.token;
+
+//     new QRCode(document.getElementById("qrCode"), {
+//       text: data.token,
+//       width: 180,
+//       height: 180
+//     });
+//   } else {
+//     alert(data.error);
+//   }
+// }
+
 async function submitForm() {
+  if (isSubmitting) return; // HARD STOP duplicate submits
+  isSubmitting = true;
+
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Submitting...";
+  submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+
   const payload = {
     name: document.getElementById("name").value,
     ageGroup: document.getElementById("ageGroup").value,
@@ -150,27 +225,29 @@ async function submitForm() {
     upiRefId: document.getElementById("upiRefId").value
   };
 
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    document.getElementById("tokenPreview").classList.add("hidden");
-    document.getElementById("successSection").classList.remove("hidden");
-    document.getElementById("finalToken").innerText = data.token;
-
-    new QRCode(document.getElementById("qrCode"), {
-      text: data.token,
-      width: 180,
-      height: 180
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
-  } else {
-    alert(data.error);
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById("tokenPreview").classList.add("hidden");
+      document.getElementById("successSection").classList.remove("hidden");
+      document.getElementById("finalToken").innerText = data.token;
+    } else {
+      alert(data.error);
+      isSubmitting = false; // allow retry on error
+    }
+
+  } catch (err) {
+    alert("Network error. Please try again.");
+    isSubmitting = false;
   }
 }
+
 </script>
 
 </body>
