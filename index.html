@@ -28,10 +28,10 @@
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
       <div>
-        <!-- <p class="mb-1 text-sm"></p> -->
+        <p class="mb-1 text-center text-sm">How many years YOUNG are you?😏</p>
         <select id="ageGroup"
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700">
-          <option value="">How many years YOUNG are you?😏</option>
+          <option value="">Select</option>
           <option>15-20</option>
           <option>21-25</option>
           <option>26-30</option>
@@ -53,10 +53,10 @@
       </div> -->
 
 
-      <input id="name" type="text" placeholder="Which Church / Fellowship are you from?"
+      <input id="churchName" type="text" placeholder="Which Church do you belong to?"
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
-      <input id="name" type="text" placeholder="Your Church Pastor / Head"
+      <input id="pastorName" type="text" placeholder="Your Church Pastor"
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
       <div>
@@ -149,13 +149,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 let previewToken = "";
 
-// function toggleOtherLocation() {
-//   document.getElementById("otherLocation").classList.toggle(
-//     "hidden",
-//     document.getElementById("location").value !== "Other"
-//   );
-// }
-
 function toggleUPI() {
   document.getElementById("upiRefId").classList.toggle(
     "hidden",
@@ -179,13 +172,14 @@ async function submitForm() {
   submitBtn.classList.add("opacity-50", "cursor-not-allowed");
 
   const payload = {
-    name: document.getElementById("name").value,
+    name: document.getElementById("fullName").value,
     ageGroup: document.getElementById("ageGroup").value,
-    location: document.getElementById("location").value,
-    otherLocation: document.getElementById("otherLocation").value,
+    church: document.getElementById("churchName").value,
+    pastor: document.getElementById("pastorName").value,
     paymentDone: document.getElementById("paymentDone").value,
     upiRefId: document.getElementById("upiRefId").value
   };
+
 
   try {
     const res = await fetch(API_URL, {
