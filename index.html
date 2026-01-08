@@ -13,6 +13,8 @@
 </head>
 
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
+<body class="bg-black text-white min-h-screen flex justify-center px-4 pt-10">
+
 
   <div class="w-full max-w-md bg-zinc-900 rounded-xl p-6 space-y-5">
 
@@ -40,18 +42,6 @@
         </select>
       </div>
 
-      <!-- <div>
-        <p class="mb-1 text-sm">Your Spiritual Family!🫂</p>
-        <select id="location"
-          class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
-          
-          onchange="toggleOtherLocation()">
-          <option value="">Select</option>
-          
-          <option>Other</option>
-        </select>
-      </div> -->
-
 
       <input id="churchName" type="text" placeholder="Which Church do you belong to?"
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
@@ -78,8 +68,8 @@
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
           onchange="toggleUPI()">
           <option value="">Select</option>
-          <option>Yes, Paid!👍</option>
-          <option>Will pay in cash.🫰</option>
+          <option value="YES">Yes, Paid!👍</option>
+          <option value="NO">Will pay in cash.🫰</option>
         </select>
       </div>
 
@@ -152,16 +142,33 @@ let previewToken = "";
 function toggleUPI() {
   document.getElementById("upiRefId").classList.toggle(
     "hidden",
-    document.getElementById("paymentDone").value !== "Yes, Paid!👍"
+    document.getElementById("paymentDone").value !== "YES"
+
   );
 }
 
 function generateToken() {
+  if (
+    !document.getElementById("fullName").value ||
+    !document.getElementById("ageGroup").value ||
+    !document.getElementById("churchName").value ||
+    !document.getElementById("pastorName").value ||
+    !document.getElementById("paymentDone").value ||
+    (
+      document.getElementById("paymentDone").value === "YES" &&
+      !document.getElementById("upiRefId").value
+    )
+  ) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
   previewToken = "GYM-SYM-CODE";
   document.getElementById("tokenText").innerText = previewToken;
   document.getElementById("formSection").classList.add("hidden");
   document.getElementById("tokenPreview").classList.remove("hidden");
 }
+
 
 async function submitForm() {
   const submitBtn = document.getElementById("submitBtn");
@@ -172,7 +179,7 @@ async function submitForm() {
   submitBtn.classList.add("opacity-50", "cursor-not-allowed");
 
   const payload = {
-    name: document.getElementById("fullName").value,
+    name: document.getElementById("name").value,
     ageGroup: document.getElementById("ageGroup").value,
     church: document.getElementById("churchName").value,
     pastor: document.getElementById("pastorName").value,
