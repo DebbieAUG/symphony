@@ -18,13 +18,13 @@
 
     <h1 class="text-2xl font-bold text-center">🎶 Symphony</h1>
     <p class="text-center text-zinc-400 text-sm">
-      Gurgaon Youth Concert Registration
+      Symphony Registration
     </p>
 
     <!-- FORM -->
     <div id="formSection" class="space-y-4">
 
-      <input id="name" type="text" placeholder="Your Name"
+      <input id="name" type="text" placeholder="Jesus called you by name...Tell Use"
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
       <div>
@@ -35,7 +35,8 @@
           <option>15-20</option>
           <option>21-25</option>
           <option>26-30</option>
-          <option>30+</option>
+          <option>31-35</option>
+          <option>35+</option>
         </select>
       </div>
 
@@ -59,6 +60,19 @@
 
       <div>
         <p class="mb-1 text-sm">Payment Done?</p>
+        <!-- PAYMENT QR IMAGE -->
+        <div class="text-center space-y-2">
+            <p class="text-sm text-zinc-400">
+                Scan to pay (optional)
+            </p>
+            <img
+                src="payment-qr.png"
+                alt="UPI QR"
+                class="mx-auto w-40 rounded-lg border border-zinc-700"
+            />
+            <p class="text-xs text-zinc-500 text-center"> UPI: deborah@upi </p>
+        </div>
+
         <select id="paymentDone"
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700"
           onchange="toggleUPI()">
