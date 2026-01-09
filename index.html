@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 
-<body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
+<body class="bg-black text-white min-h-screen flex items-center justify-center px-4 font-[Georgia,serif] py-10">
 
   <div class="w-full max-w-md bg-zinc-900 rounded-xl p-6 space-y-5">
 
@@ -25,14 +25,14 @@
     <div id="formSection" class="space-y-4">
       
       <div>
-        <p class="mb-1 text-center text-base font-[Georgia,serif]">Your Name as called by Jesus!</p>
+        <p class="mb-1 text-sm">Your Name as called by Jesus!😇</p>
         <input id="name" type="text" placeholder="Full Name" 
-        class="w-full p-3 rounded bg-zinc-800 border border-zinc-700 font-[Georgia,serif]" />
+        class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
       </div>
       
 
       <div>
-        <p class="mb-1 text-center text-sm">How many years YOUNG are you?😏</p>
+        <p class="mb-1 text-sm">How many years YOUNG are you?😏</p>
         <select id="ageGroup"
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700">
           <option value="">Select</option>
@@ -88,9 +88,12 @@
 
     <!-- TOKEN PREVIEW -->
     <div id="tokenPreview" class="hidden text-center space-y-3">
-      <p class="text-sm text-zinc-400">Your Token (Preview)
-        <br>Don't Forget to Screenshot your Token for Entry!</p>
+      <p class="text-base">. . . Token Preview . . .</p>
+      <p class="text-base text-red-600">
+        Screenshot your Token for Entry!</p>
+      <br>
       <p id="tokenText" class="text-xl font-bold"></p>
+      <br>
 
       <button
         id="submitBtn"
@@ -109,29 +112,32 @@
         Registration Confirmed
       </p>
 
-      <!-- Instagram Follow Card -->
-      <div class="bg-zinc-800 border border-zinc-700 rounded-lg p-4 mx-auto">
+      <p class="text-base text-red-600 animate-pulse">
+        Screenshot this token for entry </p>
+
+      <!-- GLODEN TOKEN BOX -->
+      <div class="mt-4 p-4 rounded-xl border-2 border-yellow-500 bg-gradient-to-b from-yellow-500/10 to-transparent space-y-4">
+      
+      <p class="text-sm uppercase tracking-widest text-yellow-400">Your Entry Token</p>
+      <p id="finalToken" class="text-3xl font-bold tracking-wider text-yellow-300"></p>
+
+      <!-- QR CODE -->
+      <div id="qrCode" class="flex justify-center my-2"></div>
+
+
+      <!-- INSTAGRAM CARD -->
+      <div class="bg-zinc-800 border border-zinc-700 rounded-lg p-4 mt-4">
         <p class="text-sm text-zinc-300">
           For updates & announcements, follow us on Instagram
           <a
             href="https://www.instagram.com/gurgaonyuvamovement"
             target="_blank"
-            rel="noopener noreferrer"
             class="font-semibold text-pink-400 hover:text-pink-300 ml-1"
           >
             @gurgaonyuvamovement
           </a>
         </p>
       </div>
-
-      <br><br>
-
-      <p id="finalToken" class="text-2xl font-bold tracking-wider">
-      </p>
-
-      <!-- QR CODE -->
-      <div id="qrCode" class="flex justify-center my-2"></div>
-
     </div>
 
 
