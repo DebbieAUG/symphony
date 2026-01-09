@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Symphony Entry Scanner</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- QR Scanner Library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body class="bg-black text-white min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-md text-center space-y-6 px-4">
+
+    <!-- HEADER -->
+    <h1 class="text-2xl font-bold">
+      🎶 Symphony Entry Scanner 🎶
+    </h1>
+    <p class="text-base text-red-500 animate-pulse">Volunteer Access Only</p>
+
+    <!-- IDLE -->
+    <div id="idleState">
+      <button
+        onclick="startScanner()"
+        class="w-full bg-green-600 hover:bg-green-700 p-4 rounded-xl font-semibold text-lg"
+      >
+        Start Scanning
+      </button>
+      <p class="text-sm text-zinc-400 mt-2">
+        Point camera at QR code
+      </p>
+    </div>
+
+    <!-- SCANNER -->
+    <div id="scannerState" class="hidden">
+      <div id="reader" class="rounded-lg overflow-hidden"></div>
+      <p class="text-xs text-zinc-400 mt-2">Scanning…</p>
+    </div>
+
+    <!-- RESULT -->
+    <div id="resultState" class="hidden rounded-xl p-6 space-y-3">
+      <p id="resultTitle" class="text-2xl font-bold"></p>
+      <p id="resultDetails" class="text-sm"></p>
+    </div>
+
+  </div>
+
+<script>
+const API_URL = "PASTE";
+
+let html5QrCode;
+
+/* ---------- START SCANNER ---------- */
+function startScanner() {
+  document.getElementById("idleState").classList.add("hidden");
+  document.getElementById("scannerState").classList.remove("hidden");
+
+  html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    onScanSuccess
+  );
+}
+
+/* ---------- ON SCAN ---------- */
+async function onScanSuccess(decodedText) {
+  await html5QrCode.stop();
+
+  document.getElementById("scannerState").classList.add("hidden");
+
+  verifyToken(decodedText);
+}
+
+/* ---------- VERIFY TOKEN ---------- */
+async function verifyToken(token) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "VERIFY",
+        token: token
+      })
+    });
+
+    const data = await res.json();
+
+    showResult(data);
+
+  } catch (err) {
+    showError("Network Error");
+  }
+}
+
+/* ---------- RESULT UI ---------- */
+function showResult(data) {
+  const box = document.getElementById("resultState");
+  const title = document.getElementById("resultTitle");
+  const details = document.getElementById("resultDetails");
+
+  box.classList.remove("hidden");
+
+  if (!data.success) {
+    box.className = "rounded-xl p-6 bg-red-700";
+    title.innerText = "INVALID PASS";
+    details.innerText = data.error;
+    return resetLater();
+  }
+
+  if (data.entryStatus === "ENTERED") {
+    box.className = "rounded-xl p-6 bg-red-700";
+    title.innerText = "ALREADY ENTERED";
+    details.innerText = data.token;
+    return resetLater();
+  }
+
+  if (data.status === "CONFIRMED") {
+    box.className = "rounded-xl p-6 bg-green-700";
+    title.innerText = "ENTRY ALLOWED";
+    details.innerText = data.token;
+  } else {
+    box.className = "rounded-xl p-6 bg-yellow-600 text-black";
+    title.innerText = "PAYMENT PENDING";
+    details.innerText = data.token;
+  }
+
+  resetLater();
+}
+
+/* ---------- ERROR ---------- */
+function showError(msg) {
+  const box = document.getElementById("resultState");
+  box.className = "rounded-xl p-6 bg-red-700";
+  box.classList.remove("hidden");
+  document.getElementById("resultTitle").innerText = msg;
+  document.getElementById("resultDetails").innerText = "";
+  resetLater();
+}
+
+/* ---------- RESET ---------- */
+function resetLater() {
+  setTimeout(() => {
+    document.getElementById("resultState").classList.add("hidden");
+    document.getElementById("idleState").classList.remove("hidden");
+  }, 2500);
+}
+</script>
+
+</body>
+</html>
