@@ -10,9 +10,35 @@
 
   <!-- QR Code Library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <style>
+    .music-bg span {
+      position: absolute;
+      bottom: -20px;
+      color: rgba(234, 179, 8, 0.15); /* soft gold */
+      font-size: 18px;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      from {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      to {
+        transform: translateY(-120vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+
 </head>
 
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4 font-[sans-serif] py-10 tracking-wider">
+  <!-- MUSICAL NOTES BACKGROUND -->
+  <div class="music-bg pointer-events-none fixed inset-0 overflow-hidden z-0"></div>
 
   <div class="w-full max-w-md bg-zinc-900 rounded-xl p-6 space-y-5">
 
@@ -22,7 +48,7 @@
     </p>
 
     <!-- FORM -->
-    <div id="formSection" class="space-y-4">
+    <div id="formSection" class="space-y-4 relative z-10">
       
       <div>
         <p class="mb-1 text-sm">Your Name as called by Jesus!😇</p>
@@ -165,7 +191,6 @@ function generateToken() {
   document.getElementById("tokenPreview").classList.remove("hidden");
 }
 
-
 async function submitForm() {
   const submitBtn = document.getElementById("submitBtn");
 
@@ -182,7 +207,6 @@ async function submitForm() {
     paymentDone: document.getElementById("paymentDone").value,
     upiRefId: document.getElementById("upiRefId").value
   };
-
 
   try {
     const res = await fetch(API_URL, {
@@ -223,6 +247,20 @@ function restoreSubmitButton(btn) {
   btn.disabled = false;
   btn.innerText = "Confirm Registration";
   btn.classList.remove("opacity-50", "cursor-not-allowed");
+}
+
+const notes = ["♪", "♫", "♬", "♩", "𝅘𝅥𝅯", "𝅘𝅥𝅰", "𝄽", "𝄞", "𝄢", "𝅗𝅥", "♫♫", "𝄮", "𝆚", "𝄰", "𝄬"];
+
+const bg = document.querySelector(".music-bg");
+
+for (let i = 0; i < 40; i++) {
+  const note = document.createElement("span");
+  note.innerText = notes[Math.floor(Math.random() * notes.length)];
+  note.style.left = Math.random() * 100 + "vw";
+  note.style.animationDuration = 12 + Math.random() * 10 + "s";
+  note.style.animationDelay = Math.random() * 10 + "s";
+  note.style.fontSize = 14 + Math.random() * 14 + "px";
+  bg.appendChild(note);
 }
 
 </script>
