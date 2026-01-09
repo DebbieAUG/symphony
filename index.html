@@ -18,14 +18,18 @@
 
     <h1 class="text-2xl font-bold text-center">🎶 Symphony 🎶</h1>
     <p class="text-center text-zinc-400 text-sm">
-      Symphony Registration
+      United in Rhythm & Praise!
     </p>
 
     <!-- FORM -->
     <div id="formSection" class="space-y-4">
-
-      <input id="name" type="text" placeholder="Jesus called you by name...Tell Us"
-        class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
+      
+      <div>
+        <p class="mb-1 text-center text-base font-[Georgia,serif]">Your Name as called by Jesus!</p>
+        <input id="name" type="text" placeholder="Full Name" 
+        class="w-full p-3 rounded bg-zinc-800 border border-zinc-700 font-[Georgia,serif]" />
+      </div>
+      
 
       <div>
         <p class="mb-1 text-center text-sm">How many years YOUNG are you?😏</p>
@@ -60,6 +64,7 @@
                 class="mx-auto w-40 rounded-lg border border-zinc-700"
             />
             <p class="text-xs text-zinc-500 text-center"> UPI: doratharajoy@okhdfcbank </p>
+            <br>
         </div>
 
         <select id="paymentDone"
@@ -76,14 +81,15 @@
         class="hidden w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
 
       <button onclick="generateToken()"
-        class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded font-semibold">
+        class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-semibold">
         Generate Token
       </button>
     </div>
 
     <!-- TOKEN PREVIEW -->
     <div id="tokenPreview" class="hidden text-center space-y-3">
-      <p class="text-sm text-zinc-400">Your Token (Preview)</p>
+      <p class="text-sm text-zinc-400">Your Token (Preview)
+        <br>Don't Forget to Screenshot your Token for Entry!</p>
       <p id="tokenText" class="text-xl font-bold"></p>
 
       <button
@@ -118,15 +124,13 @@
         </p>
       </div>
 
+      <br><br>
+
       <p id="finalToken" class="text-2xl font-bold tracking-wider">
       </p>
 
       <!-- QR CODE -->
       <div id="qrCode" class="flex justify-center my-2"></div>
-
-      <p class="text-xs text-zinc-400">
-        Screenshot your token & QR for entry
-      </p>
 
     </div>
 
@@ -147,21 +151,6 @@ function toggleUPI() {
 }
 
 function generateToken() {
-  // if (
-  //   !document.getElementById("name").value ||
-  //   !document.getElementById("ageGroup").value ||
-  //   !document.getElementById("churchName").value ||
-  //   !document.getElementById("pastorName").value ||
-  //   !document.getElementById("paymentDone").value ||
-  //   (
-  //     document.getElementById("paymentDone").value === "YES" &&
-  //     !document.getElementById("upiRefId").value
-  //   )
-  // ) {
-  //   alert("Please fill all required fields.");
-  //   return;
-  // }
-
   previewToken = "GYM-SYM-CODE";
   document.getElementById("tokenText").innerText = previewToken;
   document.getElementById("formSection").classList.add("hidden");
