@@ -12,12 +12,12 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 
-<body class="bg-black text-white min-h-screen flex items-center justify-center px-4 font-[Georgia,serif] py-10">
+<body class="bg-black text-white min-h-screen flex items-center justify-center px-4 font-[sans-serif] py-10 tracking-wider">
 
   <div class="w-full max-w-md bg-zinc-900 rounded-xl p-6 space-y-5">
 
-    <h1 class="text-2xl font-bold text-center">🎶 Symphony 🎶</h1>
-    <p class="text-center text-zinc-400 text-sm">
+    <h1 class="text-2xl font-bold text-center font-[serif]">🎶 Symphony 🎶</h1>
+    <p class="text-center text-zinc-400 text-sm font-[serif]">
       United in Rhythm & Praise!
     </p>
 
@@ -25,14 +25,14 @@
     <div id="formSection" class="space-y-4">
       
       <div>
-        <p class="mb-1 text-sm tracking-widest">Your Name as called by Jesus!😇</p>
+        <p class="mb-1 text-sm">Your Name as called by Jesus!😇</p>
         <input id="name" type="text" placeholder="Full Name" 
         class="w-full p-3 rounded bg-zinc-800 border border-zinc-700" />
       </div>
       
 
       <div>
-        <p class="mb-1 text-sm tracking-wider">How many years YOUNG are you?😏</p>
+        <p class="mb-1 text-sm">How many years YOUNG are you?😏</p>
         <select id="ageGroup"
           class="w-full p-3 rounded bg-zinc-800 border border-zinc-700">
           <option value="">Select</option>
@@ -89,7 +89,7 @@
     <!-- TOKEN PREVIEW -->
     <div id="tokenPreview" class="hidden text-center space-y-3">
       <p class="text-base">. . . Token Preview . . .</p>
-      <p class="text-base text-red-600">
+      <p class="text-base text-red-500">
         Screenshot your Token for Entry!</p>
       <br>
       <p id="tokenText" class="text-xl font-bold"></p>
@@ -112,17 +112,19 @@
         Registration Confirmed
       </p>
 
-      <p class="text-base text-red-600 animate-pulse">
+      <p class="text-base text-red-500 animate-pulse font-semibold">
         Screenshot this token for entry </p>
 
       <!-- GLODEN TOKEN BOX -->
       <div class="mt-4 p-4 rounded-xl border-2 border-yellow-500 bg-gradient-to-b from-yellow-500/10 to-transparent space-y-4">
       
-      <p class="text-sm uppercase tracking-widest text-yellow-400">Your Entry Token</p>
-      <p id="finalToken" class="text-3xl font-bold tracking-wider text-yellow-300"></p>
+        <p class="text-sm uppercase tracking-widest text-yellow-400">Your Entry Token</p>
+        <p id="finalToken" class="text-3xl font-bold tracking-wider text-yellow-300"></p>
 
-      <!-- QR CODE -->
-      <div id="qrCode" class="flex justify-center my-2"></div>
+        <!-- QR CODE -->
+        <div id="qrCode" class="flex justify-center my-2"></div>
+        <br>
+      </div>
 
 
       <!-- INSTAGRAM CARD -->
