@@ -37,7 +37,16 @@
 
     <!-- SCANNER -->
     <div id="scannerState" class="hidden">
-      <div id="reader" class="rounded-lg overflow-hidden"></div>
+      <div
+        id="reader"
+        class="rounded-lg overflow-hidden bg-black"
+        style="width:100%; height:320px;"
+    ></div>
+    <p class="text-xs text-zinc-400 mt-2 animate-pulse">
+      Looking for QR code…
+    </p>
+
+
       <p class="text-xs text-zinc-400 mt-2">Scanning…</p>
     </div>
 
@@ -65,14 +74,18 @@
     html5QrCode = new Html5Qrcode("reader");
 
     html5QrCode.start(
-      { facingMode: "environment" },
+      { facingMode: { exact: "environment" } },
       {
         fps: 10,
-        qrbox: { width: 250, height: 250 }
+        aspectRatio: 1.0,
+        disableFlip: true
       },
-
-      onScanSuccess
+      onScanSuccess,
+      error => {
+        // Ignore scan errors (normal)
+      }
     );
+
   }
 
   /* ---------- ON SCAN ---------- */
