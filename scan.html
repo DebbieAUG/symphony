@@ -50,105 +50,130 @@
   </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-let html5QrCode;
+  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-/* ---------- START SCANNER ---------- */
-function startScanner() {
-  document.getElementById("idleState").classList.add("hidden");
-  document.getElementById("scannerState").classList.remove("hidden");
+  let html5QrCode;
+  let scanInProgress = false;
 
-  html5QrCode = new Html5Qrcode("reader");
 
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    onScanSuccess
-  );
-}
+  /* ---------- START SCANNER ---------- */
+  function startScanner() {
+    document.getElementById("idleState").classList.add("hidden");
+    document.getElementById("scannerState").classList.remove("hidden");
 
-/* ---------- ON SCAN ---------- */
-async function onScanSuccess(decodedText) {
-  await html5QrCode.stop();
+    html5QrCode = new Html5Qrcode("reader");
 
-  document.getElementById("scannerState").classList.add("hidden");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+      },
 
-  verifyToken(decodedText);
-}
-
-/* ---------- VERIFY TOKEN ---------- */
-async function verifyToken(token) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "VERIFY",
-        token: token
-      })
-    });
-
-    const data = await res.json();
-
-    showResult(data);
-
-  } catch (err) {
-    showError("Network Error");
+      onScanSuccess
+    );
   }
-}
 
-/* ---------- RESULT UI ---------- */
-function showResult(data) {
-  const box = document.getElementById("resultState");
-  const title = document.getElementById("resultTitle");
-  const details = document.getElementById("resultDetails");
+  /* ---------- ON SCAN ---------- */
+  async function onScanSuccess(decodedText) {
+    if (scanInProgress) return; // 🔒 prevent duplicate triggers
+    scanInProgress = true;
 
-  box.classList.remove("hidden");
+    // Normalize token (VERY important)
+    const token = decodedText.trim();
 
-  if (!data.success) {
+    console.log("QR detected:", token); // debug
+
+    try {
+      await html5QrCode.stop();
+    } catch (e) {}
+
+    document.getElementById("scannerState").classList.add("hidden");
+
+    // Visual checkpoint (temporary)
+    document.getElementById("resultState").classList.remove("hidden");
+    document.getElementById("resultTitle").innerText = "SCAN DETECTED";
+    document.getElementById("resultDetails").innerText = token;
+
+    verifyToken(token);
+  }
+
+
+  /* ---------- VERIFY TOKEN ---------- */
+  async function verifyToken(token) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "VERIFY",
+          token: token
+        })
+      });
+
+      const data = await res.json();
+
+      showResult(data);
+
+    } catch (err) {
+      showError("Network Error");
+    }
+  }
+
+  /* ---------- RESULT UI ---------- */
+  function showResult(data) {
+    const box = document.getElementById("resultState");
+    const title = document.getElementById("resultTitle");
+    const details = document.getElementById("resultDetails");
+
+    box.classList.remove("hidden");
+
+    if (!data.success) {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "INVALID PASS";
+      details.innerText = data.error;
+      return resetLater();
+    }
+
+    if (data.entryStatus === "ENTERED") {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "ALREADY ENTERED";
+      details.innerText = data.token;
+      return resetLater();
+    }
+
+    if (data.status === "CONFIRMED") {
+      box.className = "rounded-xl p-6 bg-green-700";
+      title.innerText = "ENTRY ALLOWED";
+      details.innerText = data.token;
+    } else {
+      box.className = "rounded-xl p-6 bg-yellow-600 text-black";
+      title.innerText = "PAYMENT PENDING";
+      details.innerText = data.token;
+    }
+
+    resetLater();
+  }
+
+  /* ---------- ERROR ---------- */
+  function showError(msg) {
+    const box = document.getElementById("resultState");
     box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "INVALID PASS";
-    details.innerText = data.error;
-    return resetLater();
+    box.classList.remove("hidden");
+    document.getElementById("resultTitle").innerText = msg;
+    document.getElementById("resultDetails").innerText = "";
+    resetLater();
   }
 
-  if (data.entryStatus === "ENTERED") {
-    box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "ALREADY ENTERED";
-    details.innerText = data.token;
-    return resetLater();
+  /* ---------- RESET ---------- */
+  function resetLater() {
+    setTimeout(() => {
+      scanInProgress = false; // 🔓 unlock scanner
+      document.getElementById("resultState").classList.add("hidden");
+      document.getElementById("idleState").classList.remove("hidden");
+    }, 2500);
   }
 
-  if (data.status === "CONFIRMED") {
-    box.className = "rounded-xl p-6 bg-green-700";
-    title.innerText = "ENTRY ALLOWED";
-    details.innerText = data.token;
-  } else {
-    box.className = "rounded-xl p-6 bg-yellow-600 text-black";
-    title.innerText = "PAYMENT PENDING";
-    details.innerText = data.token;
-  }
-
-  resetLater();
-}
-
-/* ---------- ERROR ---------- */
-function showError(msg) {
-  const box = document.getElementById("resultState");
-  box.className = "rounded-xl p-6 bg-red-700";
-  box.classList.remove("hidden");
-  document.getElementById("resultTitle").innerText = msg;
-  document.getElementById("resultDetails").innerText = "";
-  resetLater();
-}
-
-/* ---------- RESET ---------- */
-function resetLater() {
-  setTimeout(() => {
-    document.getElementById("resultState").classList.add("hidden");
-    document.getElementById("idleState").classList.remove("hidden");
-  }, 2500);
-}
 </script>
 
 </body>
