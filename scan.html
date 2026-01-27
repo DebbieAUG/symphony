@@ -52,7 +52,18 @@
   async function startScan() {
     try {
       const devices = await codeReader.getVideoInputDevices();
-      const deviceId = devices[0]?.deviceId;
+
+      // Prefer BACK camera
+      let backCamera = devices.find(device =>
+        device.label.toLowerCase().includes("back") ||
+        device.label.toLowerCase().includes("rear") ||
+        device.label.toLowerCase().includes("environment")
+      );
+
+      // Fallback if labels are empty (first permission grant)
+      const deviceId = backCamera
+        ? backCamera.deviceId
+        : devices[devices.length - 1].deviceId;
 
       await codeReader.decodeFromVideoDevice(
         deviceId,
@@ -67,14 +78,15 @@
             verifyToken(token);
           }
 
-          // IMPORTANT: ignore NotFound errors (ZXing throws constantly)
+          // Ignore "not found" errors
           if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
           }
         }
       );
+
     } catch (err) {
-      alert("Camera access failed");
+      alert("Unable to access back camera");
       console.error(err);
     }
   }
