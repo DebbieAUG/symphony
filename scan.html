@@ -1,68 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>QR Demo Scanner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Scanbot QR Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 
 <body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
 
-  <h1 class="text-xl font-bold mb-4">📷 QR Code Demo Scanner</h1>
+  <h1 class="text-2xl font-bold mb-6">📷 Scanbot QR Demo</h1>
 
-  <video
-    id="video"
-    class="w-full max-w-sm rounded-lg border border-zinc-700"
-    autoplay
-    muted
-    playsinline>
-  </video>
+  <button
+    id="startScan"
+    class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl text-lg font-semibold">
+    Start QR Scan
+  </button>
 
   <div
-    id="output"
-    class="mt-6 p-4 rounded-lg bg-zinc-800 text-center text-lg hidden">
+    id="result"
+    class="hidden mt-6 p-4 rounded-xl bg-zinc-800 text-center w-full max-w-sm">
   </div>
 
-<script>
-const video = document.getElementById("video");
-const output = document.getElementById("output");
+<script type="module">
+  import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
 
-async function startScanner() {
-  // Check support
-  if (!("BarcodeDetector" in window)) {
-    alert("BarcodeDetector API not supported on this browser.");
-    return;
-  }
+  const LICENSE_KEY = 
+    "ksrX74UoMJMqipyygcdjq1wUvL1GjF" +
+    "JOMit8JgGGPlsJwXAKCOwao0hb0wDH" +
+    "844c4c1ElPb9VL0R19rDzPHNvwyXWz" +
+    "vR0aJCrDtSCugWW2BsnaKzMt0Yp+LB" +
+    "p6DfSgE0+uSyMXYHNZxuh/OAOM6rw8" +
+    "d1d/AYWsJyV9Rma510fWTQWzLBvGri" +
+    "wsqSKdJ1zajRmtZOj9lhyWBtRz1tgl" +
+    "v0TXpd+F2GE9uV26V8DkGFbBLzKbDF" +
+    "u+QdAQ7xBelKiEIwHM9kkNxx2ahxVz" +
+    "DuIn4gvdtk7K1C1f5KQ9aMc4zwTAFf" +
+    "a5y8mMLqOxlZck04ZuBXwTwfoE796T" +
+    "cy6ZsN8kk0HQ==\nU2NhbmJvdFNESw" +
+    "psb2NhbGhvc3R8aG9uZXliZWUKMTc3" +
+    "MDE2MzE5OQo4Mzg4NjA3Cjg=\n";
+    
+  const ENGINE_PATH = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
 
-  // Start camera
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" }
+  const sdk = await ScanbotSDK.initialize({
+    licenseKey: LICENSE_KEY,
+    enginePath: ENGINE_PATH
   });
-  video.srcObject = stream;
 
-  const detector = new BarcodeDetector({ formats: ["qr_code"] });
+  const startBtn = document.getElementById("startScan");
+  const resultBox = document.getElementById("result");
 
-  async function scanLoop() {
-    try {
-      const codes = await detector.detect(video);
-      if (codes.length > 0) {
-        output.innerText = `QR Detected:\n\n${codes[0].rawValue}`;
-        output.classList.remove("hidden");
-      }
-    } catch (e) {
-      // silently ignore
+  startBtn.onclick = async () => {
+
+    const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
+
+    // QR only (important for speed)
+    config.barcodeFormats = [ScanbotSDK.BarcodeFormat.QR_CODE];
+
+    // Close automatically after scan
+    config.successBeepEnabled = true;
+    config.vibrationEnabled = true;
+
+    const result = await ScanbotSDK.UI.createBarcodeScanner(config);
+
+    if (!result || !result.items || result.items.length === 0) {
+      showToast("No QR detected");
+      return;
     }
 
-    requestAnimationFrame(scanLoop);
+    const barcode = result.items[0].barcode;
+
+    resultBox.innerHTML = `
+      <p class="text-green-400 font-semibold mb-2">QR Scanned</p>
+      <p class="break-all text-sm">${barcode.text}</p>
+      <p class="mt-2 text-xs text-zinc-400">Format: ${barcode.format}</p>
+    `;
+
+    resultBox.classList.remove("hidden");
+  };
+
+  function showToast(text) {
+    Toastify({
+      text: text,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      style: {
+        background: "#16a34a"
+      }
+    }).showToast();
   }
-
-  scanLoop();
-}
-
-startScanner();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 </body>
 </html>
