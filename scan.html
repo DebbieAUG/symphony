@@ -41,6 +41,27 @@
 
   </div>
 
+  <div class="mt-4 space-y-2">
+    <p class="text-xs text-zinc-400">
+      QR not scanning? Enter token manually
+    </p>
+
+    <input
+      id="manualToken"
+      type="text"
+      placeholder="GYM-SYM-0001"
+      class="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-center uppercase tracking-wider"
+    />
+
+    <button
+      onclick="manualVerify()"
+      class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded font-semibold"
+    >
+      Verify Token
+    </button>
+  </div>
+
+
 <script>
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
@@ -156,6 +177,22 @@ function reset() {
     document.getElementById("result").classList.add("hidden");
   }, 2500);
 }
+
+function manualVerify() {
+  const input = document.getElementById("manualToken");
+  const raw = input.value.trim().toUpperCase();
+
+  const match = raw.match(/GYM-SYM-\d{4}/);
+
+  if (!match) {
+    showError("INVALID TOKEN FORMAT");
+    return;
+  }
+
+  scanning = false;
+  verifyToken(match[0]);
+}
+
 </script>
 
 </body>
