@@ -36,123 +36,123 @@
   </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-let scanning = true;
-let html5QrCode;
+  let scanning = true;
+  let html5QrCode;
 
-/* ---------- START SCANNER ---------- */
-function startScanner() {
-  html5QrCode = new Html5Qrcode("reader");
+  /* ---------- START SCANNER ---------- */
+  function startScanner() {
+    html5QrCode = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(cameras => {
-    // Prefer BACK camera
-    const backCamera =
-      cameras.find(cam =>
-        cam.label.toLowerCase().includes("back") ||
-        cam.label.toLowerCase().includes("rear")
-      ) || cameras[cameras.length - 1];
+    Html5Qrcode.getCameras().then(cameras => {
+      // Prefer BACK camera
+      const backCamera =
+        cameras.find(cam =>
+          cam.label.toLowerCase().includes("back") ||
+          cam.label.toLowerCase().includes("rear")
+        ) || cameras[cameras.length - 1];
 
-    html5QrCode.start(
-      backCamera.id,
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
-      },
-      onScanSuccess,
-      () => {} // ignore scan failures
-    );
-  }).catch(err => {
-    alert("Camera access failed");
-    console.error(err);
-  });
-}
-
-/* ---------- ON SCAN ---------- */
-async function onScanSuccess(decodedText) {
-  if (!scanning) return;
-
-  scanning = false;
-  await html5QrCode.stop();
-
-  const token = decodedText.trim();
-  console.log("QR FOUND:", token);
-
-  verifyToken(token);
-}
-
-/* ---------- VERIFY TOKEN ---------- */
-async function verifyToken(token) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "VERIFY",
-        token
-      })
+      html5QrCode.start(
+        backCamera.id,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0
+        },
+        onScanSuccess,
+        () => {} // ignore scan failures
+      );
+    }).catch(err => {
+      alert("Camera access failed");
+      console.error(err);
     });
-
-    const data = await res.json();
-    showResult(data, token);
-
-  } catch {
-    showError("Network Error");
   }
-}
 
-/* ---------- UI ---------- */
-function showResult(data, token) {
-  const box = document.getElementById("result");
-  const title = document.getElementById("resultTitle");
-  const tokenEl = document.getElementById("resultToken");
+  /* ---------- ON SCAN ---------- */
+  async function onScanSuccess(decodedText) {
+    if (!scanning) return;
 
-  box.classList.remove("hidden");
+    scanning = false;
+    await html5QrCode.stop();
 
-  if (!data.success) {
-    box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "INVALID PASS";
+    const token = decodedText.trim();
+    console.log("QR FOUND:", token);
+
+    verifyToken(token);
+  }
+
+  /* ---------- VERIFY TOKEN ---------- */
+  async function verifyToken(token) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "VERIFY",
+          token
+        })
+      });
+
+      const data = await res.json();
+      showResult(data, token);
+
+    } catch {
+      showError("Network Error");
+    }
+  }
+
+  /* ---------- UI ---------- */
+  function showResult(data, token) {
+    const box = document.getElementById("result");
+    const title = document.getElementById("resultTitle");
+    const tokenEl = document.getElementById("resultToken");
+
+    box.classList.remove("hidden");
+
+    if (!data.success) {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "INVALID PASS";
+      tokenEl.innerText = token;
+      return reset();
+    }
+
+    if (data.entryStatus === "ENTERED") {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "ALREADY ENTERED";
+      tokenEl.innerText = token;
+      return reset();
+    }
+
+    if (data.status === "CONFIRMED") {
+      box.className = "rounded-xl p-6 bg-green-700";
+      title.innerText = "ENTRY ALLOWED";
+    } else {
+      box.className = "rounded-xl p-6 bg-yellow-500 text-black";
+      title.innerText = "PAYMENT PENDING";
+    }
+
     tokenEl.innerText = token;
-    return reset();
+    reset();
   }
 
-  if (data.entryStatus === "ENTERED") {
+  function showError(msg) {
+    const box = document.getElementById("result");
     box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "ALREADY ENTERED";
-    tokenEl.innerText = token;
-    return reset();
+    box.classList.remove("hidden");
+    document.getElementById("resultTitle").innerText = msg;
+    reset();
   }
 
-  if (data.status === "CONFIRMED") {
-    box.className = "rounded-xl p-6 bg-green-700";
-    title.innerText = "ENTRY ALLOWED";
-  } else {
-    box.className = "rounded-xl p-6 bg-yellow-500 text-black";
-    title.innerText = "PAYMENT PENDING";
+  /* ---------- RESET ---------- */
+  function reset() {
+    setTimeout(() => {
+      document.getElementById("result").classList.add("hidden");
+      scanning = true;
+      startScanner(); // restart camera
+    }, 2500);
   }
 
-  tokenEl.innerText = token;
-  reset();
-}
-
-function showError(msg) {
-  const box = document.getElementById("result");
-  box.className = "rounded-xl p-6 bg-red-700";
-  box.classList.remove("hidden");
-  document.getElementById("resultTitle").innerText = msg;
-  reset();
-}
-
-/* ---------- RESET ---------- */
-function reset() {
-  setTimeout(() => {
-    document.getElementById("result").classList.add("hidden");
-    scanning = true;
-    startScanner(); // restart camera
-  }, 2500);
-}
-
-startScanner();
+  startScanner();
 </script>
 
 </body>
