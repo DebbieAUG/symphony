@@ -1,45 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Symphony – Entry Scan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Symphony Entry Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- QR Scanner -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
 
-  <h1 class="text-2xl font-bold mb-4">🎶 Symphony Entry Scan</h1>
+<h1 class="text-2xl font-bold mb-4">🎶 Symphony Entry Scan</h1>
 
-  <!-- CAMERA -->
-  <div id="reader" class="w-full max-w-sm rounded overflow-hidden"></div>
+<video id="video" class="w-full max-w-sm rounded-xl border border-zinc-700" autoplay playsinline></video>
 
-  <!-- RESULT -->
-  <div id="resultBox" class="hidden mt-6 p-6 rounded-xl text-center text-xl font-bold"></div>
+<div id="overlay"
+  class="absolute inset-0 flex items-center justify-center pointer-events-none">
+</div>
+
+<div id="result"
+  class="hidden mt-6 px-6 py-4 rounded-xl text-xl font-bold text-center">
+</div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-const resultBox = document.getElementById("resultBox");
+const video = document.getElementById("video");
+const resultBox = document.getElementById("result");
 
-function showResult(type, message) {
-  resultBox.className = "mt-6 p-6 rounded-xl text-center text-xl font-bold";
+let scanning = true;
+
+// --- UI helper ---
+function showResult(type, text) {
+  resultBox.className = "mt-6 px-6 py-4 rounded-xl text-xl font-bold text-center";
 
   if (type === "GREEN") resultBox.classList.add("bg-green-600");
   if (type === "RED") resultBox.classList.add("bg-red-600");
-  if (type === "ORANGE") resultBox.classList.add("bg-yellow-500", "text-black");
+  if (type === "ORANGE") resultBox.classList.add("bg-yellow-400", "text-black");
 
-  resultBox.innerText = message;
+  resultBox.innerText = text;
   resultBox.classList.remove("hidden");
 
   setTimeout(() => {
     resultBox.classList.add("hidden");
+    scanning = true;
   }, 2500);
+}
+
+// --- Camera start ---
+async function startCamera() {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "environment" }
+  });
+  video.srcObject = stream;
+}
+
+async function scanLoop() {
+  if (!("BarcodeDetector" in window)) {
+    alert("QR scanning not supported on this browser");
+    return;
+  }
+
+  const detector = new BarcodeDetector({ formats: ["qr_code"] });
+
+  setInterval(async () => {
+    if (!scanning || video.readyState !== 4) return;
+
+    const codes = await detector.detect(video);
+    if (codes.length === 0) return;
+
+    scanning = false;
+    verifyToken(codes[0].rawValue);
+  }, 300);
 }
 
 async function verifyToken(token) {
@@ -48,7 +80,7 @@ async function verifyToken(token) {
       method: "POST",
       body: JSON.stringify({
         action: "VERIFY",
-        token: token
+        token
       })
     });
 
@@ -76,17 +108,7 @@ async function verifyToken(token) {
   }
 }
 
-const scanner = new Html5Qrcode("reader");
-
-scanner.start(
-  { facingMode: "environment" },
-  { fps: 10, qrbox: 250 },
-  qrCodeMessage => {
-    scanner.pause();
-    verifyToken(qrCodeMessage);
-    setTimeout(() => scanner.resume(), 3000);
-  }
-);
+startCamera().then(scanLoop);
 </script>
 
 </body>
