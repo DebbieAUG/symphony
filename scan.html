@@ -20,11 +20,14 @@
     </h1>
     <p class="text-sm text-zinc-400">Volunteer Access Only</p>
 
-    <!-- VIDEO -->
+    <!-- CAMERA -->
     <video
       id="video"
-      class="w-full rounded-lg border border-zinc-700"
+      class="w-full rounded-lg border border-zinc-700 bg-black"
       style="height: 320px;"
+      autoplay
+      muted
+      playsinline
     ></video>
 
     <!-- RESULT -->
@@ -39,50 +42,71 @@
   </div>
 
 <script>
+/* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-const codeReader = new ZXing.BrowserQRCodeReader();
-const video = document.getElementById("video");
-
+/* ================= STATE ================= */
 let scanning = true;
+let codeReader = null;
 
-codeReader.decodeFromVideoDevice(
-  null,
-  video,
-  (result, err) => {
-    if (!scanning) return;
+/* ================= INIT ================= */
+window.addEventListener("load", startScanner);
 
-    if (result) {
-      scanning = false;
+/* ================= SCANNER ================= */
+function startScanner() {
+  codeReader = new ZXing.BrowserQRCodeReader();
 
-      const token = result.text.trim();
-      console.log("QR FOUND:", token);
+  codeReader.decodeFromVideoDevice(
+    null,
+    document.getElementById("video"),
+    (result, err) => {
+      if (!scanning) return;
 
-      verifyToken(token);
+      if (result) {
+        scanning = false;
+
+        const raw = String(result.text || "").trim();
+
+        console.log("RAW QR:", raw);
+
+        // 🔑 Extract token from ANY legacy or new QR
+        const match = raw.match(/GYM-SYM-\d{4}/);
+
+        if (!match) {
+          showError("INVALID QR FORMAT");
+          return;
+        }
+
+        const token = match[0];
+        console.log("TOKEN EXTRACTED:", token);
+
+        verifyToken(token);
+      }
     }
-  }
-);
+  );
+}
 
-/* ---------- VERIFY TOKEN ---------- */
+/* ================= VERIFY ================= */
 async function verifyToken(token) {
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({
         action: "VERIFY",
-        token
+        token: token
       })
     });
 
     const data = await res.json();
     showResult(data, token);
 
-  } catch {
-    showError("Network Error");
+  } catch (e) {
+    console.error(e);
+    showError("NETWORK ERROR");
   }
 }
 
-/* ---------- UI ---------- */
+/* ================= UI ================= */
 function showResult(data, token) {
   const box = document.getElementById("result");
   const title = document.getElementById("resultTitle");
@@ -121,9 +145,11 @@ function showError(msg) {
   box.className = "rounded-xl p-6 bg-red-700";
   box.classList.remove("hidden");
   document.getElementById("resultTitle").innerText = msg;
+  document.getElementById("resultToken").innerText = "";
   reset();
 }
 
+/* ================= RESET ================= */
 function reset() {
   setTimeout(() => {
     scanning = true;
