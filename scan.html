@@ -1,162 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Symphony Entry Scanner</title>
+  <meta charset="UTF-8">
+  <title>Symphony – Entry Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- html5-qrcode (tolerant live scanner) -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
+  <!-- QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
-<body class="bg-black text-white min-h-screen flex items-center justify-center">
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
 
-  <div class="w-full max-w-md px-4 text-center space-y-5">
+  <h1 class="text-2xl font-bold mb-4">🎶 Symphony Entry Scan</h1>
 
-    <h1 class="text-2xl font-bold text-yellow-400">
-      🎶 Symphony Entry Scanner
-    </h1>
-    <p class="text-sm text-zinc-400">Volunteer Access Only</p>
+  <!-- CAMERA -->
+  <div id="reader" class="w-full max-w-sm rounded overflow-hidden"></div>
 
-    <!-- CAMERA -->
-    <div
-      id="reader"
-      class="rounded-lg overflow-hidden border border-zinc-700"
-      style="width: 100%; height: 320px;"
-    ></div>
-
-    <!-- RESULT -->
-    <div
-      id="result"
-      class="hidden rounded-xl p-6 text-center space-y-2"
-    >
-      <p id="resultTitle" class="text-2xl font-bold"></p>
-      <p id="resultToken" class="text-sm"></p>
-    </div>
-
-  </div>
+  <!-- RESULT -->
+  <div id="resultBox" class="hidden mt-6 p-6 rounded-xl text-center text-xl font-bold"></div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-  let scanning = true;
-  let html5QrCode;
+const resultBox = document.getElementById("resultBox");
 
-  /* ---------- START SCANNER ---------- */
-  function startScanner() {
-    html5QrCode = new Html5Qrcode("reader");
+function showResult(type, message) {
+  resultBox.className = "mt-6 p-6 rounded-xl text-center text-xl font-bold";
 
-    Html5Qrcode.getCameras().then(cameras => {
-      // Prefer BACK camera
-      const backCamera =
-        cameras.find(cam =>
-          cam.label.toLowerCase().includes("back") ||
-          cam.label.toLowerCase().includes("rear")
-        ) || cameras[cameras.length - 1];
+  if (type === "GREEN") resultBox.classList.add("bg-green-600");
+  if (type === "RED") resultBox.classList.add("bg-red-600");
+  if (type === "ORANGE") resultBox.classList.add("bg-yellow-500", "text-black");
 
-      html5QrCode.start(
-        backCamera.id,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
-        },
-        onScanSuccess,
-        () => {} // ignore scan failures
-      );
-    }).catch(err => {
-      alert("Camera access failed");
-      console.error(err);
+  resultBox.innerText = message;
+  resultBox.classList.remove("hidden");
+
+  setTimeout(() => {
+    resultBox.classList.add("hidden");
+  }, 2500);
+}
+
+async function verifyToken(token) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "VERIFY",
+        token: token
+      })
     });
-  }
 
-  /* ---------- ON SCAN ---------- */
-  async function onScanSuccess(decodedText) {
-    if (!scanning) return;
-
-    scanning = false;
-    await html5QrCode.stop();
-
-    const token = decodedText.trim();
-    console.log("QR FOUND:", token);
-
-    verifyToken(token);
-  }
-
-  /* ---------- VERIFY TOKEN ---------- */
-  async function verifyToken(token) {
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "VERIFY",
-          token
-        })
-      });
-
-      const data = await res.json();
-      showResult(data, token);
-
-    } catch {
-      showError("Network Error");
-    }
-  }
-
-  /* ---------- UI ---------- */
-  function showResult(data, token) {
-    const box = document.getElementById("result");
-    const title = document.getElementById("resultTitle");
-    const tokenEl = document.getElementById("resultToken");
-
-    box.classList.remove("hidden");
+    const data = await res.json();
 
     if (!data.success) {
-      box.className = "rounded-xl p-6 bg-red-700";
-      title.innerText = "INVALID PASS";
-      tokenEl.innerText = token;
-      return reset();
+      showResult("RED", "❌ INVALID TOKEN");
+      return;
     }
 
     if (data.entryStatus === "ENTERED") {
-      box.className = "rounded-xl p-6 bg-red-700";
-      title.innerText = "ALREADY ENTERED";
-      tokenEl.innerText = token;
-      return reset();
+      showResult("RED", "⛔ ALREADY ENTERED");
+      return;
     }
 
-    if (data.status === "CONFIRMED") {
-      box.className = "rounded-xl p-6 bg-green-700";
-      title.innerText = "ENTRY ALLOWED";
-    } else {
-      box.className = "rounded-xl p-6 bg-yellow-500 text-black";
-      title.innerText = "PAYMENT PENDING";
+    if (data.status === "PAYMENT_PENDING") {
+      showResult("ORANGE", "⚠️ PAYMENT PENDING");
+      return;
     }
 
-    tokenEl.innerText = token;
-    reset();
-  }
+    showResult("GREEN", "✅ ENTRY ALLOWED");
 
-  function showError(msg) {
-    const box = document.getElementById("result");
-    box.className = "rounded-xl p-6 bg-red-700";
-    box.classList.remove("hidden");
-    document.getElementById("resultTitle").innerText = msg;
-    reset();
+  } catch (e) {
+    showResult("RED", "❌ NETWORK ERROR");
   }
+}
 
-  /* ---------- RESET ---------- */
-  function reset() {
-    setTimeout(() => {
-      document.getElementById("result").classList.add("hidden");
-      scanning = true;
-      startScanner(); // restart camera
-    }, 2500);
+const scanner = new Html5Qrcode("reader");
+
+scanner.start(
+  { facingMode: "environment" },
+  { fps: 10, qrbox: 250 },
+  qrCodeMessage => {
+    scanner.pause();
+    verifyToken(qrCodeMessage);
+    setTimeout(() => scanner.resume(), 3000);
   }
-
-  startScanner();
+);
 </script>
 
 </body>
