@@ -1,115 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Symphony Entry Scan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        #reader {
+            width: 100%;
+            border: none !important;
+        }
+        #reader__scan_region {
+            background: white !important;
+        }
+    </style>
 </head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
-<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-indigo-600 p-6 text-center">
+            <h1 class="text-white text-2xl font-bold tracking-tight">QR Code Scanner</h1>
+            <p class="text-indigo-100 text-sm mt-1">Point your camera at a code</p>
+        </div>
 
-<h1 class="text-2xl font-bold mb-4">🎶 Symphony Entry Scan</h1>
+        <div class="p-4">
+            <div id="reader" class="overflow-hidden rounded-lg border-2 border-dashed border-slate-200"></div>
+        </div>
 
-<video id="video" class="w-full max-w-sm rounded-xl border border-zinc-700" autoplay playsinline></video>
+        <div class="p-6 pt-0">
+            <label for="result" class="block text-sm font-semibold text-slate-700 mb-2">Scanned Result:</label>
+            <textarea 
+                id="result" 
+                rows="4" 
+                class="w-full p-3 bg-slate-100 border border-slate-200 rounded-lg text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+                placeholder="Results will appear here..."
+                readonly
+            ></textarea>
+            
+            <button 
+                onclick="clearResult()"
+                class="mt-4 w-full py-2 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition-colors"
+            >
+                Clear Text
+            </button>
+        </div>
+    </div>
 
-<div id="overlay"
-  class="absolute inset-0 flex items-center justify-center pointer-events-none">
-</div>
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            // Update the text box with the decoded content
+            const resultElement = document.getElementById('result');
+            resultElement.value = decodedText;
+            
+            // Optional: Vibrate on success (mobile only)
+            if (navigator.vibrate) navigator.vibrate(100);
+            
+            console.log(`Code matched = ${decodedText}`, decodedResult);
+        }
 
-<div id="result"
-  class="hidden mt-6 px-6 py-4 rounded-xl text-xl font-bold text-center">
-</div>
+        function onScanFailure(error) {
+            // We usually ignore errors here to avoid flooding the console 
+            // as it scans continuously looking for a code
+        }
 
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0 
+            }, 
+            /* verbose= */ false
+        );
 
-const video = document.getElementById("video");
-const resultBox = document.getElementById("result");
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 
-let scanning = true;
-
-// --- UI helper ---
-function showResult(type, text) {
-  resultBox.className = "mt-6 px-6 py-4 rounded-xl text-xl font-bold text-center";
-
-  if (type === "GREEN") resultBox.classList.add("bg-green-600");
-  if (type === "RED") resultBox.classList.add("bg-red-600");
-  if (type === "ORANGE") resultBox.classList.add("bg-yellow-400", "text-black");
-
-  resultBox.innerText = text;
-  resultBox.classList.remove("hidden");
-
-  setTimeout(() => {
-    resultBox.classList.add("hidden");
-    scanning = true;
-  }, 2500);
-}
-
-// --- Camera start ---
-async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "environment" }
-  });
-  video.srcObject = stream;
-}
-
-async function scanLoop() {
-  if (!("BarcodeDetector" in window)) {
-    alert("QR scanning not supported on this browser");
-    return;
-  }
-
-  const detector = new BarcodeDetector({ formats: ["qr_code"] });
-
-  setInterval(async () => {
-    if (!scanning || video.readyState !== 4) return;
-
-    const codes = await detector.detect(video);
-    if (codes.length === 0) return;
-
-    scanning = false;
-    verifyToken(codes[0].rawValue);
-  }, 300);
-}
-
-async function verifyToken(token) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "VERIFY",
-        token
-      })
-    });
-
-    const data = await res.json();
-
-    if (!data.success) {
-      showResult("RED", "❌ INVALID TOKEN");
-      return;
-    }
-
-    if (data.entryStatus === "ENTERED") {
-      showResult("RED", "⛔ ALREADY ENTERED");
-      return;
-    }
-
-    if (data.status === "PAYMENT_PENDING") {
-      showResult("ORANGE", "⚠️ PAYMENT PENDING");
-      return;
-    }
-
-    showResult("GREEN", "✅ ENTRY ALLOWED");
-
-  } catch (e) {
-    showResult("RED", "❌ NETWORK ERROR");
-  }
-}
-
-startCamera().then(scanLoop);
-</script>
-
+        function clearResult() {
+            document.getElementById('result').value = '';
+        }
+    </script>
 </body>
 </html>
