@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Symphony Gate</title>
+  <title>QR Demo Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,84 +10,50 @@
 
 <body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
 
-  <h1 class="text-2xl font-bold mb-4">🎶 Symphony Gate</h1>
+  <h1 class="text-xl font-bold mb-4">📷 QR Code Demo Scanner</h1>
 
-  <video id="video" class="w-full max-w-sm rounded-lg border border-zinc-700" autoplay muted playsinline></video>
+  <video
+    id="video"
+    class="w-full max-w-sm rounded-lg border border-zinc-700"
+    autoplay
+    muted
+    playsinline>
+  </video>
 
-  <div id="result"
-       class="hidden mt-6 p-6 rounded-xl text-center text-2xl font-bold">
+  <div
+    id="output"
+    class="mt-6 p-4 rounded-lg bg-zinc-800 text-center text-lg hidden">
   </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
-
 const video = document.getElementById("video");
-const resultBox = document.getElementById("result");
+const output = document.getElementById("output");
 
-let scanning = true;
-
-// ---------- UI Renderer ----------
-function render(display) {
-  resultBox.className = "mt-6 p-6 rounded-xl text-center text-2xl font-bold";
-
-  if (display.color === "GREEN") resultBox.classList.add("bg-green-600");
-  if (display.color === "RED") resultBox.classList.add("bg-red-600");
-  if (display.color === "ORANGE") resultBox.classList.add("bg-yellow-500", "text-black");
-
-  resultBox.innerText = display.text;
-  resultBox.classList.remove("hidden");
-
-  setTimeout(() => {
-    resultBox.classList.add("hidden");
-    scanning = true;
-  }, 2500);
-}
-
-// ---------- Gate Call ----------
-async function verify(token) {
-  scanning = false;
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "VERIFY",
-      token: token
-    })
-  });
-
-  const data = await res.json();
-  if (!data.success) {
-    render({ color: "RED", text: "ERROR" });
-    return;
-  }
-
-  render(data.display);
-}
-
-// ---------- Camera + Decode ----------
 async function startScanner() {
+  // Check support
   if (!("BarcodeDetector" in window)) {
-    alert("Barcode scanning not supported on this device.");
+    alert("BarcodeDetector API not supported on this browser.");
     return;
   }
 
+  // Start camera
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: "environment" }
   });
-
   video.srcObject = stream;
 
   const detector = new BarcodeDetector({ formats: ["qr_code"] });
 
   async function scanLoop() {
-    if (!scanning) return requestAnimationFrame(scanLoop);
-
     try {
-      const barcodes = await detector.detect(video);
-      if (barcodes.length > 0) {
-        verify(barcodes[0].rawValue.trim());
+      const codes = await detector.detect(video);
+      if (codes.length > 0) {
+        output.innerText = `QR Detected:\n\n${codes[0].rawValue}`;
+        output.classList.remove("hidden");
       }
-    } catch (e) {}
+    } catch (e) {
+      // silently ignore
+    }
 
     requestAnimationFrame(scanLoop);
   }
