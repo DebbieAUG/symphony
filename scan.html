@@ -20,15 +20,14 @@
     </h1>
     <p class="text-sm text-zinc-400">Volunteer Access Only</p>
 
-    <!-- CAMERA -->
+    <!-- VIDEO -->
     <video
       id="video"
-      class="w-full rounded-lg border border-zinc-700 bg-black"
-      style="height: 320px;"
-      autoplay
-      muted
       playsinline
+      class="w-full rounded-lg border border-zinc-700"
+      style="height: 320px;"
     ></video>
+
 
     <!-- RESULT -->
     <div
@@ -41,158 +40,114 @@
 
   </div>
 
-  <div class="mt-4 space-y-2">
-    <p class="text-xs text-zinc-400">
-      QR not scanning? Enter token manually
-    </p>
-
-    <input
-      id="manualToken"
-      type="text"
-      placeholder="GYM-SYM-0001"
-      class="w-full p-3 rounded bg-zinc-800 border border-zinc-700 text-center uppercase tracking-wider"
-    />
-
-    <button
-      onclick="manualVerify()"
-      class="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded font-semibold"
-    >
-      Verify Token
-    </button>
-  </div>
-
-
 <script>
-/* ================= CONFIG ================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-/* ================= STATE ================= */
-let scanning = true;
-let codeReader = null;
+  const video = document.getElementById("video");
+  const codeReader = new ZXing.BrowserQRCodeReader();
 
-/* ================= INIT ================= */
-window.addEventListener("load", startScanner);
+  let scanning = true;
 
-/* ================= SCANNER ================= */
-function startScanner() {
-  codeReader = new ZXing.BrowserQRCodeReader();
+  /* ---------- START CAMERA & SCAN ---------- */
+  async function startScan() {
+    try {
+      const devices = await codeReader.getVideoInputDevices();
+      const deviceId = devices[0]?.deviceId;
 
-  codeReader.decodeFromVideoDevice(
-    null,
-    document.getElementById("video"),
-    (result, err) => {
-      if (!scanning) return;
+      await codeReader.decodeFromVideoDevice(
+        deviceId,
+        video,
+        (result, err) => {
+          if (!scanning) return;
 
-      if (result) {
-        scanning = false;
+          if (result) {
+            scanning = false;
+            const token = result.text.trim();
+            console.log("QR FOUND:", token);
+            verifyToken(token);
+          }
 
-        const raw = String(result.text || "").trim();
-
-        console.log("RAW QR:", raw);
-
-        // 🔑 Extract token from ANY legacy or new QR
-        const match = raw.match(/GYM-SYM-\d{4}/);
-
-        if (!match) {
-          showError("INVALID QR FORMAT");
-          return;
+          // IMPORTANT: ignore NotFound errors (ZXing throws constantly)
+          if (err && !(err instanceof ZXing.NotFoundException)) {
+            console.error(err);
+          }
         }
-
-        const token = match[0];
-        console.log("TOKEN EXTRACTED:", token);
-
-        verifyToken(token);
-      }
+      );
+    } catch (err) {
+      alert("Camera access failed");
+      console.error(err);
     }
-  );
-}
-
-/* ================= VERIFY ================= */
-async function verifyToken(token) {
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "VERIFY",
-        token: token
-      })
-    });
-
-    const data = await res.json();
-    showResult(data, token);
-
-  } catch (e) {
-    console.error(e);
-    showError("NETWORK ERROR");
   }
-}
 
-/* ================= UI ================= */
-function showResult(data, token) {
-  const box = document.getElementById("result");
-  const title = document.getElementById("resultTitle");
-  const tokenEl = document.getElementById("resultToken");
+  startScan();
 
-  box.classList.remove("hidden");
+  /* ---------- VERIFY TOKEN ---------- */
+  async function verifyToken(token) {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "VERIFY",
+          token
+        })
+      });
 
-  if (!data.success) {
-    box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "INVALID PASS";
+      const data = await res.json();
+      showResult(data, token);
+
+    } catch {
+      showError("Network Error");
+    }
+  }
+
+  /* ---------- UI ---------- */
+  function showResult(data, token) {
+    const box = document.getElementById("result");
+    const title = document.getElementById("resultTitle");
+    const tokenEl = document.getElementById("resultToken");
+
+    box.classList.remove("hidden");
+
+    if (!data.success) {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "INVALID PASS";
+      tokenEl.innerText = token;
+      return reset();
+    }
+
+    if (data.entryStatus === "ENTERED") {
+      box.className = "rounded-xl p-6 bg-red-700";
+      title.innerText = "ALREADY ENTERED";
+      tokenEl.innerText = token;
+      return reset();
+    }
+
+    if (data.status === "CONFIRMED") {
+      box.className = "rounded-xl p-6 bg-green-700";
+      title.innerText = "ENTRY ALLOWED";
+    } else {
+      box.className = "rounded-xl p-6 bg-yellow-500 text-black";
+      title.innerText = "PAYMENT PENDING";
+    }
+
     tokenEl.innerText = token;
-    return reset();
+    reset();
   }
 
-  if (data.entryStatus === "ENTERED") {
+  function showError(msg) {
+    const box = document.getElementById("result");
     box.className = "rounded-xl p-6 bg-red-700";
-    title.innerText = "ALREADY ENTERED";
-    tokenEl.innerText = token;
-    return reset();
+    box.classList.remove("hidden");
+    document.getElementById("resultTitle").innerText = msg;
+    reset();
   }
 
-  if (data.status === "CONFIRMED") {
-    box.className = "rounded-xl p-6 bg-green-700";
-    title.innerText = "ENTRY ALLOWED";
-  } else {
-    box.className = "rounded-xl p-6 bg-yellow-500 text-black";
-    title.innerText = "PAYMENT PENDING";
+  function reset() {
+    setTimeout(() => {
+      scanning = true;
+      document.getElementById("result").classList.add("hidden");
+    }, 2500);
   }
-
-  tokenEl.innerText = token;
-  reset();
-}
-
-function showError(msg) {
-  const box = document.getElementById("result");
-  box.className = "rounded-xl p-6 bg-red-700";
-  box.classList.remove("hidden");
-  document.getElementById("resultTitle").innerText = msg;
-  document.getElementById("resultToken").innerText = "";
-  reset();
-}
-
-/* ================= RESET ================= */
-function reset() {
-  setTimeout(() => {
-    scanning = true;
-    document.getElementById("result").classList.add("hidden");
-  }, 2500);
-}
-
-function manualVerify() {
-  const input = document.getElementById("manualToken");
-  const raw = input.value.trim().toUpperCase();
-
-  const match = raw.match(/GYM-SYM-\d{4}/);
-
-  if (!match) {
-    showError("INVALID TOKEN FORMAT");
-    return;
-  }
-
-  scanning = false;
-  verifyToken(match[0]);
-}
-
 </script>
 
 </body>
