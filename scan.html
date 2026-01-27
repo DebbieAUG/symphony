@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Symphony Entry Scanner</title>
 
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- ZXING QR SCANNER -->
-  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <!-- html5-qrcode (tolerant live scanner) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
 </head>
 
 <body class="bg-black text-white min-h-screen flex items-center justify-center">
@@ -20,14 +21,8 @@
     </h1>
     <p class="text-sm text-zinc-400">Volunteer Access Only</p>
 
-    <!-- VIDEO -->
-    <video
-      id="video"
-      playsinline
-      class="w-full rounded-lg border border-zinc-700"
-      style="height: 320px;"
-    ></video>
-
+    <!-- CAMERA -->
+    <div id="reader" class="rounded-lg overflow-hidden border border-zinc-700"></div>
 
     <!-- RESULT -->
     <div
@@ -41,125 +36,123 @@
   </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-  const video = document.getElementById("video");
-  const codeReader = new ZXing.BrowserQRCodeReader();
+let scanning = true;
+let html5QrCode;
 
-  let scanning = true;
+/* ---------- START SCANNER ---------- */
+function startScanner() {
+  html5QrCode = new Html5Qrcode("reader");
 
-  /* ---------- START CAMERA & SCAN ---------- */
-  async function startScan() {
-    try {
-      const devices = await codeReader.getVideoInputDevices();
+  Html5Qrcode.getCameras().then(cameras => {
+    // Prefer BACK camera
+    const backCamera =
+      cameras.find(cam =>
+        cam.label.toLowerCase().includes("back") ||
+        cam.label.toLowerCase().includes("rear")
+      ) || cameras[cameras.length - 1];
 
-      // Prefer BACK camera
-      let backCamera = devices.find(device =>
-        device.label.toLowerCase().includes("back") ||
-        device.label.toLowerCase().includes("rear") ||
-        device.label.toLowerCase().includes("environment")
-      );
+    html5QrCode.start(
+      backCamera.id,
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+      },
+      onScanSuccess,
+      () => {} // ignore scan failures
+    );
+  }).catch(err => {
+    alert("Camera access failed");
+    console.error(err);
+  });
+}
 
-      // Fallback if labels are empty (first permission grant)
-      const deviceId = backCamera
-        ? backCamera.deviceId
-        : devices[devices.length - 1].deviceId;
+/* ---------- ON SCAN ---------- */
+async function onScanSuccess(decodedText) {
+  if (!scanning) return;
 
-      await codeReader.decodeFromVideoDevice(
-        deviceId,
-        video,
-        (result, err) => {
-          if (!scanning) return;
+  scanning = false;
+  await html5QrCode.stop();
 
-          if (result) {
-            scanning = false;
-            const token = result.text.trim();
-            console.log("QR FOUND:", token);
-            verifyToken(token);
-          }
+  const token = decodedText.trim();
+  console.log("QR FOUND:", token);
 
-          // Ignore "not found" errors
-          if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-          }
-        }
-      );
+  verifyToken(token);
+}
 
-    } catch (err) {
-      alert("Unable to access back camera");
-      console.error(err);
-    }
+/* ---------- VERIFY TOKEN ---------- */
+async function verifyToken(token) {
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "VERIFY",
+        token
+      })
+    });
+
+    const data = await res.json();
+    showResult(data, token);
+
+  } catch {
+    showError("Network Error");
   }
+}
 
-  startScan();
+/* ---------- UI ---------- */
+function showResult(data, token) {
+  const box = document.getElementById("result");
+  const title = document.getElementById("resultTitle");
+  const tokenEl = document.getElementById("resultToken");
 
-  /* ---------- VERIFY TOKEN ---------- */
-  async function verifyToken(token) {
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "VERIFY",
-          token
-        })
-      });
+  box.classList.remove("hidden");
 
-      const data = await res.json();
-      showResult(data, token);
-
-    } catch {
-      showError("Network Error");
-    }
-  }
-
-  /* ---------- UI ---------- */
-  function showResult(data, token) {
-    const box = document.getElementById("result");
-    const title = document.getElementById("resultTitle");
-    const tokenEl = document.getElementById("resultToken");
-
-    box.classList.remove("hidden");
-
-    if (!data.success) {
-      box.className = "rounded-xl p-6 bg-red-700";
-      title.innerText = "INVALID PASS";
-      tokenEl.innerText = token;
-      return reset();
-    }
-
-    if (data.entryStatus === "ENTERED") {
-      box.className = "rounded-xl p-6 bg-red-700";
-      title.innerText = "ALREADY ENTERED";
-      tokenEl.innerText = token;
-      return reset();
-    }
-
-    if (data.status === "CONFIRMED") {
-      box.className = "rounded-xl p-6 bg-green-700";
-      title.innerText = "ENTRY ALLOWED";
-    } else {
-      box.className = "rounded-xl p-6 bg-yellow-500 text-black";
-      title.innerText = "PAYMENT PENDING";
-    }
-
-    tokenEl.innerText = token;
-    reset();
-  }
-
-  function showError(msg) {
-    const box = document.getElementById("result");
+  if (!data.success) {
     box.className = "rounded-xl p-6 bg-red-700";
-    box.classList.remove("hidden");
-    document.getElementById("resultTitle").innerText = msg;
-    reset();
+    title.innerText = "INVALID PASS";
+    tokenEl.innerText = token;
+    return reset();
   }
 
-  function reset() {
-    setTimeout(() => {
-      scanning = true;
-      document.getElementById("result").classList.add("hidden");
-    }, 2500);
+  if (data.entryStatus === "ENTERED") {
+    box.className = "rounded-xl p-6 bg-red-700";
+    title.innerText = "ALREADY ENTERED";
+    tokenEl.innerText = token;
+    return reset();
   }
+
+  if (data.status === "CONFIRMED") {
+    box.className = "rounded-xl p-6 bg-green-700";
+    title.innerText = "ENTRY ALLOWED";
+  } else {
+    box.className = "rounded-xl p-6 bg-yellow-500 text-black";
+    title.innerText = "PAYMENT PENDING";
+  }
+
+  tokenEl.innerText = token;
+  reset();
+}
+
+function showError(msg) {
+  const box = document.getElementById("result");
+  box.className = "rounded-xl p-6 bg-red-700";
+  box.classList.remove("hidden");
+  document.getElementById("resultTitle").innerText = msg;
+  reset();
+}
+
+/* ---------- RESET ---------- */
+function reset() {
+  setTimeout(() => {
+    document.getElementById("result").classList.add("hidden");
+    scanning = true;
+    startScanner(); // restart camera
+  }, 2500);
+}
+
+startScanner();
 </script>
 
 </body>
