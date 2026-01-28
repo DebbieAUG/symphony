@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <title>ScanbotSDK Vanilla.js Example</title>
+    <title>Symphony Gate</title>
 </head>
 
 <body style="margin: 0">
 
-<div class="header">ScanbotSDK Vanilla.js Example</div>
+<div class="header">Symphony Entry Scanner</div>
 <div class="scanner-button-container">
     <div class="scanner-button" id="document-classic"></div>
     <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
@@ -89,7 +89,7 @@
             token += barcode.text;
         });
         // verifyToken(token);
-        toast(text);
+        toast(token);
     };
 
     document.getElementById("license-info").onclick = async () => {
