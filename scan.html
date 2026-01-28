@@ -11,7 +11,7 @@
 
 <div class="header">Symphony Entry Scanner</div>
 <div class="scanner-button-container">
-    <div class="scanner-button" id="document-classic"></div>
+    <!-- <div class="scanner-button" id="document-classic"></div> -->
     <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
     <div class="scanner-button" id="license-info"></div>
 </div>
@@ -92,13 +92,13 @@
         // toast(token);
     };
 
-    document.getElementById("license-info").onclick = async () => {
-        const result = await sdk.getLicenseInfo();
-        let text = `License Information:\n`;
-        text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
-        text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
-        toast(text);
-    };
+    // document.getElementById("license-info").onclick = async () => {
+    //     const result = await sdk.getLicenseInfo();
+    //     let text = `License Information:\n`;
+    //     text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
+    //     text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
+    //     toast(text);
+    // };
 
     function toast(text) {
         Toastify({
