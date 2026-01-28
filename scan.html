@@ -86,12 +86,14 @@
         const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
         const result = await ScanbotSDK.UI.createBarcodeScanner(config);
         let text = `Found ${result.items.length} barcodes:\n`;
+        const token = "";
+
         result.items.forEach((item, index) => {
             const barcode = item.barcode;
             text += `\nBarcode ${index + 1}:\n`;
             text += `${barcode.text} (format: ${barcode.format})\n`;
+            token += barcode.text;
         });
-        const token = barcode.text;
         verifyToken(token);
         toast(token);
     };
