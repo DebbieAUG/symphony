@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>🎶 Symphony Gate</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>ScanbotSDK Vanilla.js Example</title>
 </head>
 
-<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
+<body style="margin: 0">
 
-  <h1 class="text-2xl font-bold mb-4">🎶 Symphony Gate</h1>
-  <p class="text-sm text-zinc-400 mb-6">Tap to scan entry QR</p>
+<div class="header">ScanbotSDK Vanilla.js Example</div>
+<div class="scanner-button-container">
+    <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div>
+    <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
+    <div class="scanner-button" id="license-info">License Info</div>
+</div>
+</body>
 
-  <!-- START BUTTON -->
-  <button
-    id="startBtn"
-    class="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-xl text-xl font-semibold">
-    START SCAN
-  </button>
-
-  <!-- RESULT -->
-  <div
-    id="result"
-    class="hidden mt-6 p-6 rounded-xl text-center text-2xl font-bold w-full max-w-sm">
-  </div>
+<!--
+ * ScanbotSDK Classic UI components require that you define and style a container element in your HTML.
+ * For this example, we have chosen a full-screen always-on-top fixed position container that we show and hide
+-->
+<div id="document-scanner-container" style="
+    display: none;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.8);
+"></div>
 
 <script type="module">
-  import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
+    import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
 
-  /***************************************
-   * CONFIG
-   ***************************************/
-  const LICENSE_KEY =
+    /**
+     * WARNING!
+     * We strongly recommend AGAINST using jsdelivr for your production environment.
+     * Please download the SDK and host it on your server.
+     * We only use it for the quickest proof-of-concept implementation.
+     */
+    const LICENSE_KEY =
   "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
   "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
   "paqIo//k455gqsFCIQj6TBFwr84Qa+" +
@@ -48,90 +57,72 @@
   "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
   "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
   "g2MDcKOA==\n";
-  
-  const ENGINE_PATH = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
-  const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-  const startBtn = document.getElementById("startBtn");
-  const resultBox = document.getElementById("result");
+    const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
+    const sdk = await ScanbotSDK.initialize({ enginePath: cdn, licenseKey: LICENSE_KEY });
 
-  let scanningLocked = false;
+    document.getElementById("document-classic").onclick = async () => {
 
-  /***************************************
-   * UI RENDERER
-   ***************************************/
-  function render(display) {
-    resultBox.className = "mt-6 p-6 rounded-xl text-center text-2xl font-bold w-full max-w-sm";
+        const container = document.getElementById("document-scanner-container");
+        container.style.display = "block";
 
-    if (display.color === "GREEN") resultBox.classList.add("bg-green-600");
-    if (display.color === "RED") resultBox.classList.add("bg-red-600");
-    if (display.color === "ORANGE") resultBox.classList.add("bg-yellow-400", "text-black");
-
-    resultBox.innerText = display.text;
-    resultBox.classList.remove("hidden");
-
-    setTimeout(() => {
-      resultBox.classList.add("hidden");
-      scanningLocked = false;
-      startBtn.classList.remove("hidden");
-    }, 2500);
-  }
-
-  /***************************************
-   * VERIFY TOKEN
-   ***************************************/
-  async function verifyToken(token) {
-    scanningLocked = true;
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "VERIFY",
-          token: token
-        })
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        render({ color: "RED", text: "ERROR" });
-        return;
-      }
-
-      render(data.display);
-
-    } catch {
-      render({ color: "RED", text: "NETWORK ERROR" });
-    }
-  }
-
-  /***************************************
-   * START SCANNER (ON BUTTON CLICK)
-   ***************************************/
-  async function startScan() {
-    if (scanningLocked) return;
-
-    startBtn.classList.add("hidden");
-
-    const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
-    config.barcodeFormats = [ScanbotSDK.BarcodeFormat.QR_CODE];
-    config.successBeepEnabled = true;
-    config.vibrationEnabled = true;
-
-    const result = await ScanbotSDK.UI.createBarcodeScanner(config);
-
-    if (!result || !result.items || result.items.length === 0) {
-      startBtn.classList.remove("hidden");
-      return;
+        const config = {
+            container: container,
+            onDocumentDetected: (response) => {
+                const result = response.result.detectionResult;
+                let text = `Document detected!\nStatus: ${result.status}\nClosing scanner in 3 seconds...`;
+                toast(text);
+                setTimeout(() => {
+                    container.style.display = "none";
+                    scanner.dispose();
+                }, 3000);
+            },
+        };
+        const scanner = await sdk.createDocumentScanner(config);
     }
 
-    const token = result.items[0].barcode.text.trim();
-    verifyToken(token);
-  }
+    document.getElementById("barcode-rtuui").onclick = async () => {
+        const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
+        const result = await ScanbotSDK.UI.createBarcodeScanner(config);
+        let text = `Found ${result.items.length} barcodes:\n`;
+        result.items.forEach((item, index) => {
+            const barcode = item.barcode;
+            text += `\nBarcode ${index + 1}:\n`;
+            text += `${barcode.text} (format: ${barcode.format})\n`;
+        });
+        toast(text);
+    };
 
-  startBtn.onclick = startScan;
+    document.getElementById("license-info").onclick = async () => {
+        const result = await sdk.getLicenseInfo();
+        let text = `License Information:\n`;
+        text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
+        text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
+        toast(text);
+    };
+
+    function toast(text) {
+        Toastify({
+            text: text,
+            duration: 3000,
+            newWindow: true,
+            gravity: "bottom",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                wordWrap: "break-word",
+                maxHeight: "200px",
+                overflowY: "hidden",
+            },
+        }).showToast();
+    }
 </script>
 
-</body>
+<link rel="stylesheet" type="text/css" href="main.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 </html>
+
+
+
