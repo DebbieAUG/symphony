@@ -89,7 +89,7 @@
             token += barcode.text;
         });
         verifyToken(token);
-        toast(token);
+        // toast(token);
     };
 
     document.getElementById("license-info").onclick = async () => {
@@ -128,10 +128,25 @@
             });
 
             const data = await res.json();
+            let output = "";
+            output = "INVALID";
 
-            toast(JSON.stringify(data));
+    //     if (!data.success) {
+    //         output = "INVALID PASS";
+    //     }
+    //     if (data.entryStatus === "ENTERED") {
+    //         output = "ALREADY ENTERED";
+    //     }
+    //     if (data.status === "CONFIRMED") {
+    //         output = "ENTRY ALLOWED: ";
+    //         output += data.token;
+    //     } else {
+    //         output = "PAYMENT PENDING: ";
+    //         output += data.token;
+    //     }
+    
+            toast(output);
 
-            // showResult(data);
 
         } catch (err) {
             toast("Network Error");
@@ -145,8 +160,7 @@
     //         toast(text);
     //     }
 
-    //     if (data.entryStatus === "ENTERED") {
-    //         text = "ALREADY ENTERED";
+
     //         toast(text);
     //     }
 
