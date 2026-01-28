@@ -60,26 +60,27 @@
 
     const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
     const sdk = await ScanbotSDK.initialize({ enginePath: cdn, licenseKey: LICENSE_KEY });
+    const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-    document.getElementById("document-classic").onclick = async () => {
+    // document.getElementById("document-classic").onclick = async () => {
 
-        const container = document.getElementById("document-scanner-container");
-        container.style.display = "block";
+    //     const container = document.getElementById("document-scanner-container");
+    //     container.style.display = "block";
 
-        const config = {
-            container: container,
-            onDocumentDetected: (response) => {
-                const result = response.result.detectionResult;
-                let text = `Document detected!\nStatus: ${result.status}\nClosing scanner in 3 seconds...`;
-                toast(text);
-                setTimeout(() => {
-                    container.style.display = "none";
-                    scanner.dispose();
-                }, 3000);
-            },
-        };
-        const scanner = await sdk.createDocumentScanner(config);
-    }
+    //     const config = {
+    //         container: container,
+    //         onDocumentDetected: (response) => {
+    //             const result = response.result.detectionResult;
+    //             let text = `Document detected!\nStatus: ${result.status}\nClosing scanner in 3 seconds...`;
+    //             toast(text);
+    //             setTimeout(() => {
+    //                 container.style.display = "none";
+    //                 scanner.dispose();
+    //             }, 3000);
+    //         },
+    //     };
+    //     const scanner = await sdk.createDocumentScanner(config);
+    // }
 
     document.getElementById("barcode-rtuui").onclick = async () => {
         const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
@@ -90,21 +91,23 @@
             text += `\nBarcode ${index + 1}:\n`;
             text += `${barcode.text} (format: ${barcode.format})\n`;
         });
+        token = barcode.text;
+        verifyToken(token);
         toast(text);
     };
 
-    document.getElementById("license-info").onclick = async () => {
-        const result = await sdk.getLicenseInfo();
-        let text = `License Information:\n`;
-        text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
-        text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
-        toast(text);
-    };
+    // document.getElementById("license-info").onclick = async () => {
+    //     const result = await sdk.getLicenseInfo();
+    //     let text = `License Information:\n`;
+    //     text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
+    //     text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
+    //     toast(text);
+    // };
 
     function toast(text) {
         Toastify({
             text: text,
-            duration: 3000,
+            duration: 5000,
             newWindow: true,
             gravity: "bottom",
             position: "center",
@@ -116,6 +119,50 @@
             },
         }).showToast();
     }
+
+    /* ---------- VERIFY TOKEN ---------- */
+    async function verifyToken(token) {
+        try {
+            const res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "VERIFY",
+                token: token
+            })
+            });
+
+            const data = await res.json();
+
+            showResult(data);
+
+        } catch (err) {
+            showError("Network Error");
+        }
+    }
+
+    /* ---------- RESULT UI ---------- */
+    function showResult(data) {
+        if (!data.success) {
+            text = "INVALID PASS";
+            toast(text);
+        }
+
+        if (data.entryStatus === "ENTERED") {
+            text = "ALREADY ENTERED";
+            toast(text);
+        }
+
+        if (data.status === "CONFIRMED") {
+            text = "ENTRY ALLOWED: ";
+            text += data.token;
+        } else {
+            text = "PAYMENT PENDING: ";
+            text += data.token;
+        }
+        toast(text);
+    }
+
+    
 </script>
 
 <link rel="stylesheet" type="text/css" href="main.css">
