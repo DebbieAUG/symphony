@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Scanbot QR Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+  />
+
+  <!-- Tailwind (only for basic styling) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+  <!-- Toastify -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+  />
 </head>
 
 <body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
@@ -24,57 +34,97 @@
     class="hidden mt-6 p-4 rounded-xl bg-zinc-800 text-center w-full max-w-sm">
   </div>
 
-<script type="module">
-  import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
+  <!-- Toastify -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-  const LICENSE_KEY = "ksrX74UoMJMqipyygcdjq1wUvL1GjFJOMit8JgGGPlsJwXAKCOwao0hb0wDH844c4c1ElPb9VL0R19rDzPHNvwyXWzvR0aJCrDtSCugWW2BsnaKzMt0Yp+LBp6DfSgE0+uSyMXYHNZxuh/OAOM6rw8d1d/AYWsJyV9Rma510fWTQWzLBvGriwsqSKdJ1zajRmtZOj9lhyWBtRz1tglv0TXpd+F2GE9uV26V8DkGFbBLzKbDFu+QdAQ7xBelKiEIwHM9kkNxx2ahxVzDuIn4gvdtk7K1C1f5KQ9aMc4zwTAFfa5y8mMLqOxlZck04ZuBXwTwfoE796Tcy6ZsN8kk0HQ==U2NhbmJvdFNESwpsb2NhbGhvc3R8aG9uZXliZWUKMTc3MDE2MzE5OQo4Mzg4NjA3Cjg=";
+  <!-- Scanbot SDK -->
+  <script type="module">
+    import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
 
-  const ENGINE_PATH = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
+    const LICENSE_KEY = "ksrX74UoMJMqipyygcdjq1wUvL1GjF" +
+  "JOMit8JgGGPlsJwXAKCOwao0hb0wDH" +
+  "844c4c1ElPb9VL0R19rDzPHNvwyXWz" +
+  "vR0aJCrDtSCugWW2BsnaKzMt0Yp+LB" +
+  "p6DfSgE0+uSyMXYHNZxuh/OAOM6rw8" +
+  "d1d/AYWsJyV9Rma510fWTQWzLBvGri" +
+  "wsqSKdJ1zajRmtZOj9lhyWBtRz1tgl" +
+  "v0TXpd+F2GE9uV26V8DkGFbBLzKbDF" +
+  "u+QdAQ7xBelKiEIwHM9kkNxx2ahxVz" +
+  "DuIn4gvdtk7K1C1f5KQ9aMc4zwTAFf" +
+  "a5y8mMLqOxlZck04ZuBXwTwfoE796T" +
+  "cy6ZsN8kk0HQ==\nU2NhbmJvdFNESw" +
+  "psb2NhbGhvc3R8aG9uZXliZWUKMTc3" +
+  "MDE2MzE5OQo4Mzg4NjA3Cjg=\n";
+  
+    const ENGINE_PATH =
+      "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
 
-  const sdk = await ScanbotSDK.initialize({
-    licenseKey: LICENSE_KEY,
-    enginePath: ENGINE_PATH
-   });
+    const resultBox = document.getElementById("result");
+    const startBtn = document.getElementById("startScan");
 
-  alert("Scanbot SDK initialized successfully");
+    // Initialize SDK (async, but NOT tied to click)
+    const sdk = await ScanbotSDK.initialize({
+      licenseKey: LICENSE_KEY,
+      enginePath: ENGINE_PATH
+    });
 
-  document.getElementById("startScan").addEventListener("click", () => {
-    // 👇 NO async keyword here
-    openScanner();
-  });
+    // Proof that SDK initialized
+    console.log("Scanbot SDK initialized");
 
-  function openScanner() {
-    const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
-    config.barcodeFormats = [ScanbotSDK.BarcodeFormat.QR_CODE];
-    config.successBeepEnabled = true;
-    config.vibrationEnabled = true;
+    // IMPORTANT: scanner launch must be triggered synchronously by user click
+    startBtn.addEventListener("click", () => {
+      openScanner();
+    });
 
-    // 👇 This must be directly triggered
-    ScanbotSDK.UI.createBarcodeScanner(config)
-      .then(result => {
-        if (!result || !result.items.length) return;
-        alert("QR scanned:\n" + result.items[0].barcode.text);
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Scanner error");
-      });
-  }
+    function openScanner() {
+      const config =
+        new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
 
-  function showToast(text) {
-    Toastify({
-      text: text,
-      duration: 3000,
-      gravity: "bottom",
-      position: "center",
-      style: {
-        background: "#16a34a"
-      }
-    }).showToast();
-  }
-</script>
+      // QR only (fastest & most reliable)
+      config.barcodeFormats = [
+        ScanbotSDK.BarcodeFormat.QR_CODE
+      ];
 
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+      config.successBeepEnabled = true;
+      config.vibrationEnabled = true;
+
+      ScanbotSDK.UI.createBarcodeScanner(config)
+        .then(result => {
+          if (!result || !result.items || result.items.length === 0) {
+            showToast("No QR detected");
+            return;
+          }
+
+          const barcode = result.items[0].barcode;
+
+          resultBox.innerHTML = `
+            <p class="text-green-400 font-semibold mb-2">QR Scanned</p>
+            <p class="break-all text-sm">${barcode.text}</p>
+            <p class="mt-2 text-xs text-zinc-400">
+              Format: ${barcode.format}
+            </p>
+          `;
+
+          resultBox.classList.remove("hidden");
+        })
+        .catch(err => {
+          console.error(err);
+          showToast("Scanner error");
+        });
+    }
+
+    function showToast(text) {
+      Toastify({
+        text: text,
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        style: {
+          background: "#16a34a"
+        }
+      }).showToast();
+    }
+  </script>
 
 </body>
 </html>
