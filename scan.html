@@ -11,9 +11,9 @@
 
 <div class="header">ScanbotSDK Vanilla.js Example</div>
 <div class="scanner-button-container">
-    <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div>
+    <!-- <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div> -->
     <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
-    <div class="scanner-button" id="license-info">License Info</div>
+    <!-- <div class="scanner-button" id="license-info">License Info</div> -->
 </div>
 </body>
 
@@ -35,28 +35,22 @@
 <script type="module">
     import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
 
-    /**
-     * WARNING!
-     * We strongly recommend AGAINST using jsdelivr for your production environment.
-     * Please download the SDK and host it on your server.
-     * We only use it for the quickest proof-of-concept implementation.
-     */
     const LICENSE_KEY =
-  "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
-  "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
-  "paqIo//k455gqsFCIQj6TBFwr84Qa+" +
-  "3aBCiB9VtjbPdTjxeknaLxXobB/PvN" +
-  "KchNbLoq1UfbhCJP9/kMy2mAEl0VAF" +
-  "wrVoEVXlzlW+8A9SWZYbsGAPzYvbzb" +
-  "QnAIIhyCTBNRpU/l1FnvKUn19D/hmW" +
-  "osLjBJ1+rgDY4Xbm2asibZJmzd7yOI" +
-  "e9mJY0MCu9+46L5VWkVLFdcsHdrubL" +
-  "GMnmtBfTvHCHvhOBPPTWH0ybCXE22B" +
-  "k23iG/iVtwpjxm6Te7lLtERHk420tJ" +
-  "1Pdjvmbo9pvQ==\nU2NhbmJvdFNESw" +
-  "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
-  "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
-  "g2MDcKOA==\n";
+        "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
+        "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
+        "paqIo//k455gqsFCIQj6TBFwr84Qa+" +
+        "3aBCiB9VtjbPdTjxeknaLxXobB/PvN" +
+        "KchNbLoq1UfbhCJP9/kMy2mAEl0VAF" +
+        "wrVoEVXlzlW+8A9SWZYbsGAPzYvbzb" +
+        "QnAIIhyCTBNRpU/l1FnvKUn19D/hmW" +
+        "osLjBJ1+rgDY4Xbm2asibZJmzd7yOI" +
+        "e9mJY0MCu9+46L5VWkVLFdcsHdrubL" +
+        "GMnmtBfTvHCHvhOBPPTWH0ybCXE22B" +
+        "k23iG/iVtwpjxm6Te7lLtERHk420tJ" +
+        "1Pdjvmbo9pvQ==\nU2NhbmJvdFNESw" +
+        "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
+        "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
+        "g2MDcKOA==\n";
 
     const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
     const sdk = await ScanbotSDK.initialize({ enginePath: cdn, licenseKey: LICENSE_KEY });
