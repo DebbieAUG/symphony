@@ -14,10 +14,8 @@
 <body class="bg-black text-white min-h-screen flex items-center justify-center px-4 font-[sans-serif] py-10 tracking-wider">
 
 <h1 class="text-2xl font-bold text-center font-[serif]">🎶 Symphony 🎶</h1>
-<div class="scanner-button-container">
-    <div class="scanner-button" id="barcode-rtuui">Launch Scanner</div>
-    <!-- <div class="scanner-button" id="license-info"></div> -->
-</div>
+<br>
+<div class="scanner-button" id="barcode-rtuui">Launch Scanner</div>
 </body>
 
 <!--
@@ -75,14 +73,6 @@
         // toast(token);
     };
 
-    // document.getElementById("license-info").onclick = async () => {
-    //     const result = await sdk.getLicenseInfo();
-    //     let text = `License Information:\n`;
-    //     text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
-    //     text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
-    //     toast(text);
-    // };
-
     function toast(text) {
         Toastify({
             text: text,
@@ -136,27 +126,6 @@
             toast("Network Error");
         }
     }
-
-    // /* ---------- RESULT UI ---------- */
-    // function showResult(data) {
-    //     if (!data.success) {
-    //         text = "INVALID PASS";
-    //         toast(text);
-    //     }
-
-
-    //         toast(text);
-    //     }
-
-    //     if (data.status === "CONFIRMED") {
-    //         text = "ENTRY ALLOWED: ";
-    //         text += data.token;
-    //     } else {
-    //         text = "PAYMENT PENDING: ";
-    //         text += data.token;
-    //     }
-    //     toast(text);
-    // }
 
     
 </script>
