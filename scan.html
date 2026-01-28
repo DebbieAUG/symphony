@@ -1,130 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Scanbot QR Demo</title>
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-  />
-
-  <!-- Tailwind (only for basic styling) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Toastify -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
-  />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>ScanbotSDK Vanilla.js Example</title>
 </head>
 
-<body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
+<body style="margin: 0">
 
-  <h1 class="text-2xl font-bold mb-6">📷 Scanbot QR Demo</h1>
+<div class="header">ScanbotSDK Vanilla.js Example</div>
+<div class="scanner-button-container">
+    <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div>
+    <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
+    <div class="scanner-button" id="license-info">License Info</div>
+</div>
+</body>
 
-  <button
-    id="startScan"
-    class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl text-lg font-semibold">
-    Start QR Scan
-  </button>
+<!--
+ * ScanbotSDK Classic UI components require that you define and style a container element in your HTML.
+ * For this example, we have chosen a full-screen always-on-top fixed position container that we show and hide
+-->
+<div id="document-scanner-container" style="
+    display: none;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.8);
+"></div>
 
-  <div
-    id="result"
-    class="hidden mt-6 p-4 rounded-xl bg-zinc-800 text-center w-full max-w-sm">
-  </div>
-
-  <!-- Toastify -->
-  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-  <!-- Scanbot SDK -->
-  <script type="module">
+<script type="module">
     import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
 
-    const LICENSE_KEY = "ksrX74UoMJMqipyygcdjq1wUvL1GjF" +
-  "JOMit8JgGGPlsJwXAKCOwao0hb0wDH" +
-  "844c4c1ElPb9VL0R19rDzPHNvwyXWz" +
-  "vR0aJCrDtSCugWW2BsnaKzMt0Yp+LB" +
-  "p6DfSgE0+uSyMXYHNZxuh/OAOM6rw8" +
-  "d1d/AYWsJyV9Rma510fWTQWzLBvGri" +
-  "wsqSKdJ1zajRmtZOj9lhyWBtRz1tgl" +
-  "v0TXpd+F2GE9uV26V8DkGFbBLzKbDF" +
-  "u+QdAQ7xBelKiEIwHM9kkNxx2ahxVz" +
-  "DuIn4gvdtk7K1C1f5KQ9aMc4zwTAFf" +
-  "a5y8mMLqOxlZck04ZuBXwTwfoE796T" +
-  "cy6ZsN8kk0HQ==U2NhbmJvdFNESw" +
-  "psb2NhbGhvc3R8aG9uZXliZWUKMTc3" +
-  "MDE2MzE5OQo4Mzg4NjA3Cjg=";
+    /**
+     * WARNING!
+     * We strongly recommend AGAINST using jsdelivr for your production environment.
+     * Please download the SDK and host it on your server.
+     * We only use it for the quickest proof-of-concept implementation.
+     */
 
-    const ENGINE_PATH =
-      "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
+    const LICENSE_KEY =
+        "ksrX74UoMJMqipyygcdjq1wUvL1GjF" +
+        "JOMit8JgGGPlsJwXAKCOwao0hb0wDH" +
+        "844c4c1ElPb9VL0R19rDzPHNvwyXWz" +
+        "vR0aJCrDtSCugWW2BsnaKzMt0Yp+LB" +
+        "p6DfSgE0+uSyMXYHNZxuh/OAOM6rw8" +
+        "d1d/AYWsJyV9Rma510fWTQWzLBvGri" +
+        "wsqSKdJ1zajRmtZOj9lhyWBtRz1tgl" +
+        "v0TXpd+F2GE9uV26V8DkGFbBLzKbDF" +
+        "u+QdAQ7xBelKiEIwHM9kkNxx2ahxVz" +
+        "DuIn4gvdtk7K1C1f5KQ9aMc4zwTAFf" +
+        "a5y8mMLqOxlZck04ZuBXwTwfoE796T" +
+        "cy6ZsN8kk0HQ==\nU2NhbmJvdFNESw" +
+        "psb2NhbGhvc3R8aG9uZXliZWUKMTc3" +
+        "MDE2MzE5OQo4Mzg4NjA3Cjg=\n";
 
-    const resultBox = document.getElementById("result");
-    const startBtn = document.getElementById("startScan");
+    const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
+    const sdk = await ScanbotSDK.initialize({ enginePath: cdn, licenseKey: LICENSE_KEY });
 
-    // Initialize SDK (async, but NOT tied to click)
-    const sdk = await ScanbotSDK.initialize({
-      licenseKey: LICENSE_KEY,
-      enginePath: ENGINE_PATH
-    });
+    document.getElementById("document-classic").onclick = async () => {
 
-    // Proof that SDK initialized
-    console.log("Scanbot SDK initialized");
+        const container = document.getElementById("document-scanner-container");
+        container.style.display = "block";
 
-    // IMPORTANT: scanner launch must be triggered synchronously by user click
-    startBtn.addEventListener("click", () => {
-      openScanner();
-    });
+        const config = {
+            container: container,
+            onDocumentDetected: (response) => {
+                const result = response.result.detectionResult;
+                let text = `Document detected!\nStatus: ${result.status}\nClosing scanner in 3 seconds...`;
+                toast(text);
+                setTimeout(() => {
+                    container.style.display = "none";
+                    scanner.dispose();
+                }, 3000);
+            },
+        };
+        const scanner = await sdk.createDocumentScanner(config);
+    }
 
-    function openScanner() {
-      const config =
-        new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
-
-      // QR only (fastest & most reliable)
-      config.barcodeFormats = [
-        ScanbotSDK.BarcodeFormat.QR_CODE
-      ];
-
-      config.successBeepEnabled = true;
-      config.vibrationEnabled = true;
-
-      ScanbotSDK.UI.createBarcodeScanner(config)
-        .then(result => {
-          if (!result || !result.items || result.items.length === 0) {
-            showToast("No QR detected");
-            return;
-          }
-
-          const barcode = result.items[0].barcode;
-
-          resultBox.innerHTML = `
-            <p class="text-green-400 font-semibold mb-2">QR Scanned</p>
-            <p class="break-all text-sm">${barcode.text}</p>
-            <p class="mt-2 text-xs text-zinc-400">
-              Format: ${barcode.format}
-            </p>
-          `;
-
-          resultBox.classList.remove("hidden");
-        })
-        .catch(err => {
-          console.error(err);
-          showToast("Scanner error");
+    document.getElementById("barcode-rtuui").onclick = async () => {
+        const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
+        const result = await ScanbotSDK.UI.createBarcodeScanner(config);
+        let text = `Found ${result.items.length} barcodes:\n`;
+        result.items.forEach((item, index) => {
+            const barcode = item.barcode;
+            text += `\nBarcode ${index + 1}:\n`;
+            text += `${barcode.text} (format: ${barcode.format})\n`;
         });
-    }
+        toast(text);
+    };
 
-    function showToast(text) {
-      Toastify({
-        text: text,
-        duration: 3000,
-        gravity: "bottom",
-        position: "center",
-        style: {
-          background: "#16a34a"
-        }
-      }).showToast();
-    }
-  </script>
+    document.getElementById("license-info").onclick = async () => {
+        const result = await sdk.getLicenseInfo();
+        let text = `License Information:\n`;
+        text += `Status: ${result.status} (${result.licenseStatusMessage})\n`;
+        text += `Expiration Date: ${new Date(result.expirationDateString).toLocaleDateString()}\n`;
+        toast(text);
+    };
 
-</body>
+    function toast(text) {
+        Toastify({
+            text: text,
+            duration: 3000,
+            newWindow: true,
+            gravity: "bottom",
+            position: "center",
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+                wordWrap: "break-word",
+                maxHeight: "200px",
+                overflowY: "hidden",
+            },
+        }).showToast();
+    }
+</script>
+
+<link rel="stylesheet" type="text/css" href="main.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 </html>
