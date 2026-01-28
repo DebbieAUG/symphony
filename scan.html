@@ -1,6 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>ScanbotSDK Vanilla.js Example</title>
+</head>
+
+<body style="margin: 0">
+
+<div class="header">ScanbotSDK Vanilla.js Example</div>
+<div class="scanner-button-container">
+    <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div>
+    <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
+    <div class="scanner-button" id="license-info">License Info</div>
+</div>
+</body>
+
+<!--
+ * ScanbotSDK Classic UI components require that you define and style a container element in your HTML.
+ * For this example, we have chosen a full-screen always-on-top fixed position container that we show and hide
+-->
+<div id="document-scanner-container" style="
+    display: none;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.8);
+"></div>
+
 <script type="module">
     import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
-
     const LICENSE_KEY =
   "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
   "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
@@ -17,7 +50,7 @@
   "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
   "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
   "g2MDcKOA==\n";
-  
+
     const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
     const sdk = await ScanbotSDK.initialize({
         enginePath: cdn,
@@ -95,3 +128,13 @@
         }).showToast();
     }
 </script>
+
+
+<link rel="stylesheet" type="text/css" href="main.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</html>
+
+
+
