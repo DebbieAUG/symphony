@@ -11,9 +11,9 @@
 
 <div class="header">ScanbotSDK Vanilla.js Example</div>
 <div class="scanner-button-container">
-    <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div>
+    <!-- <div class="scanner-button" id="document-classic">Classic UI Document Scanner</div> -->
     <div class="scanner-button" id="barcode-rtuui">RTU-UI Barcode Scanner</div>
-    <div class="scanner-button" id="license-info">License Info</div>
+    <!-- <div class="scanner-button" id="license-info">License Info</div> -->
 </div>
 </body>
 
@@ -34,6 +34,13 @@
 
 <script type="module">
     import "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/ScanbotSDK.ui2.min.js";
+
+    /**
+     * WARNING!
+     * We strongly recommend AGAINST using jsdelivr for your production environment.
+     * Please download the SDK and host it on your server.
+     * We only use it for the quickest proof-of-concept implementation.
+     */
     const LICENSE_KEY =
   "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
   "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
@@ -52,60 +59,39 @@
   "g2MDcKOA==\n";
 
     const cdn = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
-    const sdk = await ScanbotSDK.initialize({
-        enginePath: cdn,
-        licenseKey: LICENSE_KEY
-    });
+    const sdk = await ScanbotSDK.initialize({ enginePath: cdn, licenseKey: LICENSE_KEY });
 
-    // 🔹 BACKEND URL (ADDED)
-    const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
+    document.getElementById("document-classic").onclick = async () => {
+
+        const container = document.getElementById("document-scanner-container");
+        container.style.display = "block";
+
+        const config = {
+            container: container,
+            onDocumentDetected: (response) => {
+                const result = response.result.detectionResult;
+                let text = `Document detected!\nStatus: ${result.status}\nClosing scanner in 3 seconds...`;
+                toast(text);
+                setTimeout(() => {
+                    container.style.display = "none";
+                    scanner.dispose();
+                }, 3000);
+            },
+        };
+        const scanner = await sdk.createDocumentScanner(config);
+    }
 
     document.getElementById("barcode-rtuui").onclick = async () => {
-
         const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
-
-        // 🔹 OPTIONAL but recommended: QR only
-        config.barcodeFormats = [ScanbotSDK.BarcodeFormat.QR_CODE];
-
         const result = await ScanbotSDK.UI.createBarcodeScanner(config);
-
-        if (!result || !result.items || result.items.length === 0) {
-            toast("No QR code detected");
-            return;
-        }
-
-        // 🔹 THIS is the variable you asked for
-        const scannedToken = result.items[0].barcode.text;
-
-        // 🔹 Send token to backend
-        sendToBackend(scannedToken);
+        let text = `Found ${result.items.length} barcodes:\n`;
+        result.items.forEach((item, index) => {
+            const barcode = item.barcode;
+            text += `\nBarcode ${index + 1}:\n`;
+            text += `${barcode.text} (format: ${barcode.format})\n`;
+        });
+        toast(text);
     };
-
-    // 🔹 BACKEND CALL (ADDED)
-    async function sendToBackend(token) {
-        try {
-            const response = await fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "VERIFY",
-                    token: token
-                })
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                toast("Invalid token");
-                return;
-            }
-
-            // Backend already decides what to show
-            toast(data.display.text);
-
-        } catch (err) {
-            toast("Network error");
-        }
-    }
 
     document.getElementById("license-info").onclick = async () => {
         const result = await sdk.getLicenseInfo();
@@ -119,16 +105,18 @@
         Toastify({
             text: text,
             duration: 3000,
+            newWindow: true,
             gravity: "bottom",
             position: "center",
             style: {
                 background: "linear-gradient(to right, #00b09b, #96c93d)",
-                wordWrap: "break-word"
+                wordWrap: "break-word",
+                maxHeight: "200px",
+                overflowY: "hidden",
             },
         }).showToast();
     }
 </script>
-
 
 <link rel="stylesheet" type="text/css" href="main.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
