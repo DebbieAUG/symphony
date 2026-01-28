@@ -91,9 +91,9 @@
             text += `\nBarcode ${index + 1}:\n`;
             text += `${barcode.text} (format: ${barcode.format})\n`;
         });
-        token = barcode.text;
-        // verifyToken(token);
-        toast(text);
+        const token = barcode.text;
+        verifyToken(token);
+        toast(token);
     };
 
     // document.getElementById("license-info").onclick = async () => {
