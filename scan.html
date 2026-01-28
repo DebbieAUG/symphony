@@ -6,14 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 
 <body class="bg-black text-white min-h-screen flex flex-col items-center justify-center px-4">
 
   <h1 class="text-2xl font-bold mb-4">🎶 Symphony Gate</h1>
-  <p class="text-sm text-zinc-400 mb-6">Scan Entry QR</p>
+  <p class="text-sm text-zinc-400 mb-6">Tap to scan entry QR</p>
 
+  <!-- START BUTTON -->
+  <button
+    id="startBtn"
+    class="bg-green-600 hover:bg-green-700 px-8 py-4 rounded-xl text-xl font-semibold">
+    START SCAN
+  </button>
+
+  <!-- RESULT -->
   <div
     id="result"
     class="hidden mt-6 p-6 rounded-xl text-center text-2xl font-bold w-full max-w-sm">
@@ -26,34 +33,28 @@
    * CONFIG
    ***************************************/
   const LICENSE_KEY =
-    "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
-    "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
-    "paqIo//k455gqsFCIQj6TBFwr84Qa+" +
-    "3aBCiB9VtjbPdTjxeknaLxXobB/PvN" +
-    "KchNbLoq1UfbhCJP9/kMy2mAEl0VAF" +
-    "wrVoEVXlzlW+8A9SWZYbsGAPzYvbzb" +
-    "QnAIIhyCTBNRpU/l1FnvKUn19D/hmW" +
-    "osLjBJ1+rgDY4Xbm2asibZJmzd7yOI" +
-    "e9mJY0MCu9+46L5VWkVLFdcsHdrubL" +
-    "GMnmtBfTvHCHvhOBPPTWH0ybCXE22B" +
-    "k23iG/iVtwpjxm6Te7lLtERHk420tJ" +
-    "1Pdjvmbo9pvQ==\nU2NhbmJvdFNESw" +
-    "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
-    "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
-    "g2MDcKOA==\n";
-
+  "O1oW6k6iHGrlKlgOt6DklijPituS9c" +
+  "qIrVGzy/TmVWeSqs8pgXuhZnfUE5AW" +
+  "paqIo//k455gqsFCIQj6TBFwr84Qa+" +
+  "3aBCiB9VtjbPdTjxeknaLxXobB/PvN" +
+  "KchNbLoq1UfbhCJP9/kMy2mAEl0VAF" +
+  "wrVoEVXlzlW+8A9SWZYbsGAPzYvbzb" +
+  "QnAIIhyCTBNRpU/l1FnvKUn19D/hmW" +
+  "osLjBJ1+rgDY4Xbm2asibZJmzd7yOI" +
+  "e9mJY0MCu9+46L5VWkVLFdcsHdrubL" +
+  "GMnmtBfTvHCHvhOBPPTWH0ybCXE22B" +
+  "k23iG/iVtwpjxm6Te7lLtERHk420tJ" +
+  "1Pdjvmbo9pvQ==\nU2NhbmJvdFNESw" +
+  "psb2NhbGhvc3R8ZGViYmllYXVnLmdp" +
+  "dGh1Yi5pbwoxNzcwMjQ5NTk5CjgzOD" +
+  "g2MDcKOA==\n";
+  
   const ENGINE_PATH = "https://cdn.jsdelivr.net/npm/scanbot-web-sdk@8.0.1/bundle/bin/complete/";
   const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
-  /***************************************
-   * INIT SDK
-   ***************************************/
-  const sdk = await ScanbotSDK.initialize({
-    licenseKey: LICENSE_KEY,
-    enginePath: ENGINE_PATH
-  });
-
+  const startBtn = document.getElementById("startBtn");
   const resultBox = document.getElementById("result");
+
   let scanningLocked = false;
 
   /***************************************
@@ -72,12 +73,12 @@
     setTimeout(() => {
       resultBox.classList.add("hidden");
       scanningLocked = false;
-      startScan();
+      startBtn.classList.remove("hidden");
     }, 2500);
   }
 
   /***************************************
-   * VERIFY WITH BACKEND
+   * VERIFY TOKEN
    ***************************************/
   async function verifyToken(token) {
     scanningLocked = true;
@@ -100,16 +101,18 @@
 
       render(data.display);
 
-    } catch (err) {
+    } catch {
       render({ color: "RED", text: "NETWORK ERROR" });
     }
   }
 
   /***************************************
-   * START SCANNER
+   * START SCANNER (ON BUTTON CLICK)
    ***************************************/
   async function startScan() {
     if (scanningLocked) return;
+
+    startBtn.classList.add("hidden");
 
     const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
     config.barcodeFormats = [ScanbotSDK.BarcodeFormat.QR_CODE];
@@ -119,7 +122,7 @@
     const result = await ScanbotSDK.UI.createBarcodeScanner(config);
 
     if (!result || !result.items || result.items.length === 0) {
-      startScan();
+      startBtn.classList.remove("hidden");
       return;
     }
 
@@ -127,11 +130,8 @@
     verifyToken(token);
   }
 
-  // AUTO START
-  startScan();
-
+  startBtn.onclick = startScan;
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 </html>
