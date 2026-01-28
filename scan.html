@@ -132,16 +132,18 @@
 
             if (!data.success) {
                 output = "INVALID PASS";
-            }
-            if (data.entryStatus === "ENTERED") {
-                output = "ALREADY ENTERED";
-            }
-            if (data.status === "CONFIRMED") {
-                output = "ENTRY ALLOWED: ";
-                output += data.token;
             } else {
-                output = "PAYMENT PENDING: ";
-                output += data.token;
+                if (data.entryStatus === "ENTERED") {
+                    output = "ALREADY ENTERED";
+                } else {
+                    if (data.status === "CONFIRMED") {
+                        output = "ENTRY ALLOWED: ";
+                        output += data.token;
+                    } else {
+                        output = "PAYMENT PENDING: ";
+                        output += data.token;
+                    }
+                }
             }
     
             toast(output);
