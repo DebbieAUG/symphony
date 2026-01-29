@@ -113,30 +113,45 @@
             });
 
             const data = await res.json();
-            let output = "";
+            let output = `${data.token}: `;
+
+            const box = document.getElementById("result");
+            const title = document.getElementById("resultTitle");
+            const tokenEl = document.getElementById("resultToken");
+            box.classList.remove("hidden");
 
             if (!data.success) {
-                output = "INVALID PASS";
+                output += "INVALID PASS";
+                box.className = "rounded-xl p-6 bg-red-700";
+                title.innerText = "INVALID TOKEN";
+                tokenEl.innerText = output;
             } else {
                 if (data.entryStatus === "ENTERED") {
-                    output = "ALREADY ENTERED";
+                    output += "ALREADY ENTERED";
+                    box.className = "rounded-xl p-6 bg-red-700";
+                    title.innerText = "ALREADY ENTERED";
+                    tokenEl.innerText = output;
                 } else {
                     if (data.status === "CONFIRMED") {
-                        output = "ENTRY ALLOWED: ";
-                        output += data.token;
+                        output += "ENTRY ALLOWED";
+                        box.className = "rounded-xl p-6 bg-green-700";
+                        title.innerText = "ENTRY ALLOWED";
+                        tokenEl.innerText = token;
                     } else {
-                        output = "PAYMENT PENDING: ";
-                        output += data.token;
+                        output += "PAYMENT PENDING";
+                        box.className = "rounded-xl p-6 bg-yellow-500 text-black";
+                        title.innerText = "PAYMENT PENDING";
+                        tokenEl.innerText = token;
                     }
                 }
             }
     
             toast(output);
 
-
         } catch (err) {
             toast("Network Error");
         }
+        
     }
 
     
