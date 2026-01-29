@@ -69,19 +69,23 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyK5cygiXq6DSHOa06UXSa6a1UxaDqEIMyOuJgcoYL2qmk1z2-LlO_TnV4Qs-9GhRx3/exec";
 
     document.getElementById("barcode-rtuui").onclick = async () => {
+
         const box = document.getElementById("result");
         box.classList.add("hidden");
+
         const config = new ScanbotSDK.UI.Config.BarcodeScannerScreenConfiguration();
         const result = await ScanbotSDK.UI.createBarcodeScanner(config);
+        let text = `Found ${result.items.length} barcodes:\n`;
+        let token = "";
 
-        let token = "Found: ";
-        
         result.items.forEach((item, index) => {
             const barcode = item.barcode;
+            text += `\nBarcode ${index + 1}:\n`;
+            text += `${barcode.text} (format: ${barcode.format})\n`;
             token += barcode.text;
         });
         verifyToken(token);
-        toast(token);
+        toast(text);
     };
 
     function toast(text) {
