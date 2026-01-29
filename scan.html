@@ -24,8 +24,8 @@
         <br>
         <!-- RESULT -->
         <div id="result" class="hidden rounded-xl p-6 text-center space-y-2">
-            <p id="resultTitle" class="text-2xl font-bold"></p>
-            <p id="resultToken" class="text-sm"></p>
+            <p id="resultToken" class="text-lg"></p>
+            <p id="stat" class="text-xl font-bold"></p>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
             token += barcode.text;
         });
         verifyToken(token);
-        // toast(token);
+        toast(text);
     };
 
     function toast(text) {
@@ -112,41 +112,34 @@
             });
 
             const data = await res.json();
-            let output = `${data.token}: `;
+            let tk = `Token: ${data.token}`;
 
             const box = document.getElementById("result");
-            const title = document.getElementById("resultTitle");
-            const tokenEl = document.getElementById("resultToken");
+            const tokenNo = document.getElementById("resultToken");
+            const stat = document.getElementById("stat");
             box.classList.remove("hidden");
 
             if (!data.success) {
-                output += "INVALID PASS";
                 box.className = "rounded-xl p-6 bg-red-700";
-                title.innerText = "INVALID TOKEN";
-                tokenEl.innerText = output;
+                tokenNo.innerText = tk;
+                stat.innerText = "INVALID";
             } else {
                 if (data.entryStatus === "ENTERED") {
-                    output += "ALREADY ENTERED";
                     box.className = "rounded-xl p-6 bg-red-700";
-                    title.innerText = "ALREADY ENTERED";
-                    tokenEl.innerText = output;
+                    tokenNo.innerText = tk;
+                    stat.innerText = "ALREADY ENTERED";
                 } else {
                     if (data.status === "CONFIRMED") {
-                        output += "ENTRY ALLOWED";
                         box.className = "rounded-xl p-6 bg-green-700";
-                        title.innerText = "ENTRY ALLOWED";
-                        tokenEl.innerText = token;
+                        tokenNo.innerText = tk;
+                        stat.innerText = "ENTRY ALLOWED";
                     } else {
-                        output += "PAYMENT PENDING";
                         box.className = "rounded-xl p-6 bg-yellow-500 text-black";
-                        title.innerText = "PAYMENT PENDING";
-                        tokenEl.innerText = token;
+                        tokenNo.innerText = tk;
+                        stat.innerText = "PAYMENT PENDING";
                     }
                 }
             }
-    
-            toast(output);
-
         } catch (err) {
             toast("Network Error");
         }
@@ -156,7 +149,6 @@
     
 </script>
 
-<!-- <link rel="stylesheet" type="text/css" href="main.css"> -->
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
